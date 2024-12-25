@@ -3,10 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chathu Karunasiri</title>
+    <title>Let me show you this!</title>
+    <style>
+        #messageContainer {
+            margin-top: px; /* Adds space between textarea and messages */
+        }
+        .message {
+            margin: 10px 0; /* Adds space between messages */
+        }
+    </style>
 </head>
 <body>
-    <h1>Chathu Karunasiri</h1>
-    <h1>ckarunasiri@pacmartech.com</h1>    
+    <textarea id="myTextarea" rows="1" cols="50"></textarea>
+    <div id="messageContainer">
+    </div>
+    
+    <script>
+        const textarea = document.getElementById('myTextarea');
+        const messageContainer = document.getElementById('messageContainer');
+
+        textarea.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevents new line in textarea
+                const message = textarea.value;
+                if (message.trim() !== '') { // Only add non-empty messages
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+                    messageDiv.textContent = message;
+                    messageContainer.insertBefore(messageDiv, messageContainer.firstChild);
+                    textarea.value = ''; // Clear the textarea
+                }
+            }
+        });
+    </script>
 </body>
 </html>
