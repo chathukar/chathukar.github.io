@@ -38,6 +38,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        console.log("Firebase initialized");
 
         const textarea = document.getElementById('myTextarea');
         const messageContainer = document.getElementById('messageContainer');
@@ -52,12 +53,16 @@
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 const message = textarea.value;
+                console.log("Enter pressed, message:", message);
                 if (message.trim() !== '') {
                     // Save message to Firebase
                     database.ref('messages').push({
                         text: message,
                         timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
+                    })
+                    .then(() => console.log("Message saved to Firebase"))
+                    .catch(error => console.error("Error saving message:", error));
+                    
                     textarea.value = '';
                 }
             }
