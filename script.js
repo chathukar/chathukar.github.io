@@ -17,6 +17,24 @@ console.log("Firebase initialized");
 
 const textarea = document.getElementById('myTextarea');
 const messageContainer = document.getElementById('messageContainer');
+const sendButton = document.getElementById('sendButton');
+const clearButton = document.getElementById('clearButton');
+
+// Function to send message
+function sendMessage() {
+    const message = textarea.value;
+    if (message.trim() !== '') {
+        // Save message to Firebase
+        database.ref('messages').push({
+            text: message,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        })
+        .then(() => console.log("Message saved to Firebase"))
+        .catch(error => console.error("Error saving message:", error));
+        
+        textarea.value = '';
+    }
+}
 
 // Listen for new messages
 database.ref('messages').on('child_added', (snapshot) => {
@@ -24,22 +42,28 @@ database.ref('messages').on('child_added', (snapshot) => {
     addMessageToContainer(message.text);
 });
 
+// Send button click handler
+sendButton.addEventListener('click', sendMessage);
+
+// Enter key handler
 textarea.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        const message = textarea.value;
-        console.log("Enter pressed, message:", message);
-        if (message.trim() !== '') {
-            // Save message to Firebase
-            database.ref('messages').push({
-                text: message,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+        sendMessage();
+    }
+});
+
+// Clear button click handler
+clearButton.addEventListener('click', function() {
+    if (confirm('Are you sure you want to clear all messages? This cannot be undone.')) {
+        // Clear Firebase database
+        database.ref('messages').remove()
+            .then(() => {
+                console.log("Messages cleared from Firebase");
+                // Clear message container
+                messageContainer.innerHTML = '';
             })
-            .then(() => console.log("Message saved to Firebase"))
-            .catch(error => console.error("Error saving message:", error));
-            
-            textarea.value = '';
-        }
+            .catch(error => console.error("Error clearing messages:", error));
     }
 });
 
