@@ -15,22 +15,39 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 console.log("Firebase initialized");
 
-// Add this at the top of your file after Firebase initialization
+// Add these at the top of your file after Firebase initialization
 let lastActiveTime = Date.now();
+localStorage.setItem('lastActiveTime', lastActiveTime);
+
+// Check on page load if we need to refresh
+const storedLastActiveTime = parseInt(localStorage.getItem('lastActiveTime') || '0');
+const timeInactive = Date.now() - storedLastActiveTime;
+if (timeInactive > 1000) { // 1 second threshold
+    console.log("Page was inactive for too long, refreshing...");
+    window.location.replace(window.location.href);
+}
+
+// Update timestamp regularly while page is active
+setInterval(() => {
+    if (!document.hidden) {
+        lastActiveTime = Date.now();
+        localStorage.setItem('lastActiveTime', lastActiveTime);
+    }
+}, 1000);
 
 // Handle page visibility changes
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // Page became visible
         const timeAway = Date.now() - lastActiveTime;
-        // If the page was hidden for more than 1 second, refresh
         if (timeAway > 1000) {
             console.log("Page was hidden for too long, refreshing...");
-            window.location.reload();
+            window.location.replace(window.location.href);
         }
     } else {
         // Page is being hidden
         lastActiveTime = Date.now();
+        localStorage.setItem('lastActiveTime', lastActiveTime);
     }
 });
 
@@ -222,7 +239,7 @@ function checkAndClearEmptyRoom(roomNumber) {
 
 // Modify your leaveRoom function
 function leaveRoom() {
-    const roomToCheck = currentRoom; // Store room number before clearing currentRoom
+    const roomToCheck = currentRoom;
     
     if (messageListener) {
         database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
@@ -234,24 +251,26 @@ function leaveRoom() {
         currentUserRef.remove()
             .then(() => {
                 console.log("User removed from room");
-                // Wait a moment for Firebase to update
                 return new Promise(resolve => setTimeout(resolve, 500));
             })
             .then(() => {
-                // Check if room is empty after user leaves
                 return checkAndClearEmptyRoom(roomToCheck);
             })
             .catch(error => console.error("Error in leaveRoom:", error));
     }
     
+    // Clear all stored data
     currentRoom = null;
     currentUserRef = null;
+    messageContainer.innerHTML = '';
+    
+    // Clear any stored room data
+    localStorage.removeItem('currentRoom');
     
     // Switch back to room selection
     chatInterface.style.display = 'none';
     roomSelection.style.display = 'block';
     roomInput.value = '';
-    messageContainer.innerHTML = '';
 }
 
 function sendMessage() {
