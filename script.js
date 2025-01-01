@@ -220,12 +220,9 @@ function checkAndClearEmptyRoom(roomNumber) {
                 return roomRef.child('messages').remove()
                     .then(() => {
                         console.log("Messages cleared successfully");
-                        // Clear messages from all connected clients
-                        messageContainer.innerHTML = '';
-                        // Remove the message listener
-                        if (messageListener) {
-                            roomRef.child('messages').off('child_added', messageListener);
-                            messageListener = null;
+                        // Clear messages from display if we're still on this room
+                        if (currentRoom === roomNumber) {
+                            messageContainer.innerHTML = '';
                         }
                     });
             }
@@ -235,19 +232,28 @@ function checkAndClearEmptyRoom(roomNumber) {
 
 // Modify your leaveRoom function
 function leaveRoom() {
-    currentRoom = null;
-    if (currentUserRef) {
-        currentUserRef.remove();
-        currentUserRef = null;
+    if (currentRoom) {
+        const roomToCheck = currentRoom; // Store room number before nulling it
+        currentRoom = null;
+        
+        if (currentUserRef) {
+            currentUserRef.remove()
+                .then(() => {
+                    // Check and clear room after user leaves
+                    return checkAndClearEmptyRoom(roomToCheck);
+                })
+                .catch(error => console.error("Error in leave room:", error));
+            currentUserRef = null;
+        }
+        
+        // Simple display toggle
+        document.getElementById('chatInterface').style.display = 'none';
+        document.getElementById('roomSelection').style.display = 'flex';
+        document.body.classList.remove('in-chat');
+        
+        // Clear the room input
+        document.getElementById('roomInput').value = '';
     }
-    
-    // Simple display toggle
-    document.getElementById('chatInterface').style.display = 'none';
-    document.getElementById('roomSelection').style.display = 'flex';
-    document.body.classList.remove('in-chat');
-    
-    // Clear the room input
-    document.getElementById('roomInput').value = '';
 }
 
 function sendMessage() {
