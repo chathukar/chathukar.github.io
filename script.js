@@ -138,16 +138,18 @@ function setupPresenceHandling(userRef, roomNumber) {
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
     
-    // Only create room number if it doesn't exist (first time)
+    // First time setup
     if (!roomInfo.querySelector('.room-number')) {
         roomInfo.innerHTML = `
             <div class="room-number">Room ${roomNumber}</div>
             <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
     } else {
-        // Just update the user count
+        // Just update the user count with fade
         const userCountElement = roomInfo.querySelector('.user-count');
+        userCountElement.style.transition = 'opacity 0.5s';
         userCountElement.style.opacity = '0';
+        
         setTimeout(() => {
             userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
             userCountElement.style.opacity = '1';
