@@ -209,6 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage();
         }
     });
+
+    // Add this inside your DOMContentLoaded event listener
+    textarea.addEventListener('input', function() {
+        // Reset height to auto to get the correct scrollHeight
+        this.style.height = 'auto';
+        // Set the height to match the content
+        this.style.height = this.scrollHeight + 'px';
+    });
 });
 
 let currentRoom = null;
