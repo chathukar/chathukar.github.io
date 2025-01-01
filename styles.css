@@ -192,19 +192,38 @@ button, input, textarea {
     padding: 12px 16px;
     font-size: 16px;
     resize: none;
-    min-height: 24px;
+    height: 24px;
     max-height: 200px;
     box-sizing: border-box;
-    opacity: 0;
-    animation: fadeIn 1s ease-in forwards;
+    margin-bottom: 10px;
 }
 
 .button-container {
-    margin-top: 20px;
     display: flex;
     gap: 10px;
     justify-content: center;
     width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Make sure these buttons are visible in chat interface */
+#chatInterface .button-container {
+    display: flex !important;
+}
+
+#sendButton,
+#leaveButton,
+#clearButton {
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    width: 120px;
 }
 
 button {
