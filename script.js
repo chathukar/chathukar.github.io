@@ -235,18 +235,39 @@ function checkAndClearEmptyRoom(roomNumber) {
 
 // Modify your leaveRoom function
 function leaveRoom() {
-    currentRoom = null;
-    if (currentUserRef) {
-        currentUserRef.remove();
-        currentUserRef = null;
+    const roomToCheck = currentRoom;
+    
+    // Remove message listener
+    if (messageListener) {
+        database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
+        messageListener = null;
     }
     
-    // Simple display toggle
+    // Remove user from room
+    if (currentUserRef) {
+        currentUserRef.remove()
+            .then(() => {
+                console.log("User removed from room");
+                return new Promise(resolve => setTimeout(resolve, 500));
+            })
+            .then(() => {
+                return checkAndClearEmptyRoom(roomToCheck);
+            })
+            .catch(error => console.error("Error in leaveRoom:", error));
+    }
+    
+    // Clear all stored data
+    currentRoom = null;
+    currentUserRef = null;
+    messageContainer.innerHTML = '';
+    
+    // Clear any stored room data
+    localStorage.removeItem('currentRoom');
+    
+    // Switch back to room selection with proper styling
     document.getElementById('chatInterface').style.display = 'none';
     document.getElementById('roomSelection').style.display = 'flex';
     document.body.classList.remove('in-chat');
-    
-    // Clear the room input
     document.getElementById('roomInput').value = '';
 }
 
