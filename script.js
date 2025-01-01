@@ -166,7 +166,7 @@ function updateRoomCount(roomNumber) {
     
     roomRef.child('users').on('value', (snapshot) => {
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        updateRoomInfo(roomInput.value, userCount); // Use roomInput.value instead of roomNumber
+        updateRoomInfo(roomNumber, userCount); // Changed back to roomNumber
     });
     
     return userRef;
@@ -182,8 +182,11 @@ function joinRoom(roomNumber) {
     document.getElementById('roomSelection').style.display = 'none';
     document.getElementById('chatInterface').style.display = 'block';
     
+    // Store the input value for room display
+    const roomDisplayName = document.getElementById('roomInput').value;
+    
     // Add user to room and track presence
-    currentUserRef = updateRoomCount(roomNumber);
+    currentUserRef = updateRoomCount(roomDisplayName); // Pass the display name here
     
     messageContainer.innerHTML = '';
     
