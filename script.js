@@ -134,25 +134,37 @@ function setupPresenceHandling(userRef, roomNumber) {
     });
 }
 
-// Modify your updateRoomCount function
-function updateRoomCount(roomNumber) {
-    const roomRef = database.ref(`rooms/${roomNumber}/users`);
+// Function to update room info
+function updateRoomInfo(roomNumber, userCount) {
+    const roomInfo = document.getElementById('roomInfo');
     
-    // Add this user to the room
-    const userRef = roomRef.push(true);
-
-    // Setup presence handling
-    setupPresenceHandling(userRef, roomNumber);
-
-    // Listen for changes in user count
-    roomRef.on('value', (snapshot) => {
-        const userCount = snapshot.numChildren();
+    // Only create room number if it doesn't exist (first time)
+    if (!roomInfo.querySelector('.room-number')) {
         roomInfo.innerHTML = `
             <div class="room-number">Room ${roomNumber}</div>
             <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
-    });
+    } else {
+        // Just update the user count
+        const userCountElement = roomInfo.querySelector('.user-count');
+        userCountElement.style.opacity = '0';
+        setTimeout(() => {
+            userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+            userCountElement.style.opacity = '1';
+        }, 500);
+    }
+}
 
+// Use this function when updating room count
+function updateRoomCount(roomNumber) {
+    const roomRef = database.ref(`rooms/${roomNumber}`);
+    const userRef = roomRef.child('users').push(true);
+    
+    roomRef.child('users').on('value', (snapshot) => {
+        const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        updateRoomInfo(roomNumber, userCount);
+    });
+    
     return userRef;
 }
 
