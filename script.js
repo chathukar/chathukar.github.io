@@ -147,7 +147,10 @@ function updateRoomCount(roomNumber) {
     // Listen for changes in user count
     roomRef.on('value', (snapshot) => {
         const userCount = snapshot.numChildren();
-        roomInfo.textContent = `Room: ${roomNumber} (${userCount} user${userCount !== 1 ? 's' : ''} online)`;
+        roomInfo.innerHTML = `
+            <div class="room-number">Room ${roomNumber}</div>
+            <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+        `;
     });
 
     return userRef;
