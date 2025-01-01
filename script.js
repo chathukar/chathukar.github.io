@@ -74,11 +74,10 @@ console.log("Elements found:", {
     roomSelection, chatInterface, roomInput, joinRoomButton
 });
 
-// Join Room
-joinRoomButton.addEventListener('click', () => {
-    console.log("Join button clicked");
+// Event listener for join button
+document.getElementById('joinRoomButton').addEventListener('click', function() {
+    const roomInput = document.getElementById('roomInput');
     const roomNumber = roomInput.value.trim();
-    console.log("Room number:", roomNumber);
     if (roomNumber) {
         joinRoom(roomNumber);
     }
@@ -137,15 +136,14 @@ function setupPresenceHandling(userRef, roomNumber) {
 // Function to update room info
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
+    const inputValue = document.getElementById('roomInput').value;
     
-    // First time setup
     if (!roomInfo.querySelector('.room-number')) {
         roomInfo.innerHTML = `
-            <div class="room-number">Room ${roomNumber}</div>
+            <div class="room-number">Room ${inputValue}</div>
             <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
     } else {
-        // Just update the user count with fade
         const userCountElement = roomInfo.querySelector('.user-count');
         userCountElement.style.opacity = '0';
         
@@ -161,12 +159,11 @@ function updateRoomCount(roomNumber) {
     const roomRef = database.ref(`rooms/${roomNumber}`);
     const userRef = roomRef.child('users').push(true);
     
-    // Set up disconnect handler
     userRef.onDisconnect().remove();
     
     roomRef.child('users').on('value', (snapshot) => {
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        updateRoomInfo(roomNumber, userCount); // Changed back to roomNumber
+        updateRoomInfo(roomNumber, userCount);
     });
     
     return userRef;
@@ -181,12 +178,10 @@ function joinRoom(roomNumber) {
     
     document.getElementById('roomSelection').style.display = 'none';
     document.getElementById('chatInterface').style.display = 'block';
-    
-    // Store the input value for room display
-    const roomDisplayName = document.getElementById('roomInput').value;
+    document.body.classList.add('in-chat');
     
     // Add user to room and track presence
-    currentUserRef = updateRoomCount(roomDisplayName); // Pass the display name here
+    currentUserRef = updateRoomCount(roomNumber);
     
     messageContainer.innerHTML = '';
     
