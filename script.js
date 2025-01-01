@@ -109,7 +109,7 @@ function joinRoom(roomNumber) {
     // Add user to room and track presence
     currentUserRef = updateRoomCount(roomNumber);
     
-    // Clear previous messages
+    // Clear previous messages display
     messageContainer.innerHTML = '';
     
     // Remove previous listener if exists
@@ -139,11 +139,19 @@ function checkAndClearEmptyRoom(roomNumber) {
             console.log("Users in room:", snapshot.numChildren());
             if (!snapshot.exists() || snapshot.numChildren() === 0) {
                 console.log("Room is empty, clearing messages");
-                return roomRef.child('messages').remove();
+                // Clear messages from Firebase
+                return roomRef.child('messages').remove()
+                    .then(() => {
+                        console.log("Messages cleared successfully");
+                        // Clear messages from all connected clients
+                        messageContainer.innerHTML = '';
+                        // Remove the message listener
+                        if (messageListener) {
+                            roomRef.child('messages').off('child_added', messageListener);
+                            messageListener = null;
+                        }
+                    });
             }
-        })
-        .then(() => {
-            console.log("Room check/clear complete");
         })
         .catch(error => console.error("Error in checkAndClearEmptyRoom:", error));
 }
@@ -154,6 +162,7 @@ function leaveRoom() {
     
     if (messageListener) {
         database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
+        messageListener = null;
     }
     
     // Remove user from room
@@ -173,7 +182,6 @@ function leaveRoom() {
     
     currentRoom = null;
     currentUserRef = null;
-    messageListener = null;
     
     // Switch back to room selection
     chatInterface.style.display = 'none';
