@@ -1,10 +1,10 @@
 :root {
-    --background-color: #10101a;
-    --chat-background: rgb(25, 25, 35);
+    --background-color: #343541;
+    --chat-background: #444654;
     --text-color: #FFFFFF;
-    --input-background: rgb(25, 25, 35);
-    --button-color: #19C37D;
-    --button-hover: #1a7f4e;
+    --input-background: #40414F;
+    --button-color: #10A37F;
+    --button-hover: #0A8165;
 }
 
 body {
