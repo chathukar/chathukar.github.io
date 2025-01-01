@@ -196,7 +196,7 @@ button, input, textarea {
     overflow: hidden;
     box-sizing: border-box;
     margin-bottom: 10px;
-    min-height: 80px;
+    min-height: 45px;
 }
 
 .button-container {
