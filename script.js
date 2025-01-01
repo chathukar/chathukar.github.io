@@ -30,20 +30,34 @@ const messageContainer = document.getElementById('messageContainer');
 const sendButton = document.getElementById('sendButton');
 const clearButton = document.getElementById('clearButton');
 
+// Add console logs to debug
+console.log("Elements found:", {
+    roomSelection, chatInterface, roomInput, joinRoomButton
+});
+
 // Join Room
 joinRoomButton.addEventListener('click', () => {
+    console.log("Join button clicked");
     const roomNumber = roomInput.value.trim();
+    console.log("Room number:", roomNumber);
     if (roomNumber) {
         joinRoom(roomNumber);
     }
 });
 
-// Leave Room
-leaveRoomButton.addEventListener('click', () => {
-    leaveRoom();
+// Also join room when pressing Enter in the room input
+roomInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        console.log("Enter pressed in room input");
+        const roomNumber = roomInput.value.trim();
+        if (roomNumber) {
+            joinRoom(roomNumber);
+        }
+    }
 });
 
 function joinRoom(roomNumber) {
+    console.log("Joining room:", roomNumber);
     currentRoom = roomNumber;
     
     // Switch interfaces
@@ -65,6 +79,11 @@ function joinRoom(roomNumber) {
         addMessageToContainer(message.text);
     });
 }
+
+// Leave Room
+leaveRoomButton.addEventListener('click', () => {
+    leaveRoom();
+});
 
 function leaveRoom() {
     if (messageListener) {
