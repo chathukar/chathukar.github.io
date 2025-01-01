@@ -86,7 +86,7 @@ function setupPresenceHandling(userRef, roomNumber) {
             // Client is connected
             console.log("Client connected");
             
-            // Remove presence on disconnect or page hide
+            // Remove presence on disconnect
             userRef.onDisconnect().remove();
             
             // Set presence
@@ -101,7 +101,11 @@ function setupPresenceHandling(userRef, roomNumber) {
             userRef.remove();
         } else {
             console.log("Page visible");
-            userRef.set(true);
+            // Force rejoin if we have a current room
+            if (currentRoom) {
+                console.log("Rejoining room after visibility change");
+                joinRoom(currentRoom);
+            }
         }
     });
 
@@ -135,6 +139,12 @@ let currentUserRef = null; // Add this with your other global variables
 // Modify your joinRoom function
 function joinRoom(roomNumber) {
     console.log("Joining room:", roomNumber);
+    
+    // Remove existing user reference if it exists
+    if (currentUserRef) {
+        currentUserRef.remove();
+    }
+    
     currentRoom = roomNumber;
     
     // Switch interfaces
