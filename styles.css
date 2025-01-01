@@ -12,8 +12,9 @@ body {
     color: var(--text-color);
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     min-height: 100vh;
+    overflow: hidden;
 }
 
 /* Add font-family to all inputs and buttons */
@@ -23,26 +24,36 @@ button, input, textarea {
 
 #roomSelection {
     text-align: center;
-    margin-top: 50px;
     max-width: 768px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    justify-content: center;
+    overflow: hidden;
+    gap: 40px;
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
 }
 
 #roomSelection h1 {
-    color: var(--text-color);
-    margin-bottom: 30px;
+    margin: 0;
+    padding: 0;
 }
 
 .room-input {
     background-color: var(--input-background);
-    border: 1px solid #11121b;
+    border: 1px solid #565869;
     border-radius: 8px;
     color: var(--text-color);
     padding: 12px 16px;
     font-size: 16px;
     width: 200px;
-    margin-right: 10px;
+    margin: 0;
 }
 
 #roomSelection .button-container,
@@ -50,14 +61,26 @@ button, input, textarea {
     display: none; /* Hide chat elements on room selection screen */
 }
 
+#joinRoomButton {
+    margin: 0;
+}
+
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    position: relative;
-    padding-bottom: 20px;
+    display: none;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    opacity: 0;
+}
+
+/* Add a class for when chat is visible */
+#chatInterface.visible {
+    opacity: 1;
 }
 
 /* Update animations */
@@ -71,6 +94,13 @@ button, input, textarea {
     to { opacity: 1; }
 }
 
+#roomInfo {
+    width: 100%;
+    position: static;
+    margin: 0;
+    padding: 0;
+}
+
 #roomInfo .room-number {
     display: block;
     text-align: center;
@@ -78,7 +108,7 @@ button, input, textarea {
     font-size: 2em;
     font-weight: bold;
     white-space: nowrap;
-    overflow: hidden;
+    opacity: 0;
     animation: fadeIn 1s steps(50) forwards;
 }
 
@@ -96,10 +126,25 @@ button, input, textarea {
 
 #messageContainer {
     padding-top: 230px;
+    padding-bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     width: 100%;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* Hide scrollbar IE and Edge */
+    scrollbar-width: none;     /* Hide scrollbar Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#messageContainer::-webkit-scrollbar {
+    display: none;
 }
 
 .message {
@@ -108,6 +153,9 @@ button, input, textarea {
     background-color: var(--chat-background);
     margin: 0;
     line-height: 1.5;
+    width: calc(100% - 40px);
+    max-width: calc(768px - 40px);
+    box-sizing: border-box;
 }
 
 .input-container {
@@ -115,39 +163,48 @@ button, input, textarea {
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 100%;
+    width: calc(100% - 40px);
     max-width: 768px;
     z-index: 1000;
     padding: 20px;
     background-color: var(--background-color);
 }
 
+@keyframes containerFadeIn {
+    to { opacity: 1; }
+}
+
 .input-wrapper {
-    max-width: 768px;
+    width: 100%;
     margin: 0 auto;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #myTextarea {
     width: 100%;
     background-color: var(--input-background);
-    border: 1px solid #11121b;
+    border: 1px solid #565869;
     border-radius: 8px;
     color: var(--text-color);
-    padding: 12px 45px 12px 16px;
+    padding: 12px 16px;
     font-size: 16px;
     resize: none;
     min-height: 24px;
     max-height: 200px;
     box-sizing: border-box;
+    opacity: 0;
+    animation: fadeIn 1s ease-in forwards;
 }
 
 .button-container {
-    margin-top: 10px;
-    margin-bottom: 20px;
+    margin-top: 20px;
     display: flex;
     gap: 10px;
     justify-content: center;
+    width: 100%;
 }
 
 button {
@@ -159,6 +216,7 @@ button {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
+    width: 120px; /* Fixed width for all buttons */
 }
 
 button:hover {
@@ -171,4 +229,9 @@ button:hover {
     right: 10px;
     color: #565869;
     font-size: 12px;
+}
+
+/* When chat interface is shown, allow scrolling again */
+body.in-chat {
+    overflow: hidden;
 } 

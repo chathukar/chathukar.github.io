@@ -163,9 +163,18 @@ function joinRoom(roomNumber) {
     console.log("Joining room:", roomNumber);
     currentRoom = roomNumber;
     
-    // Hide room selection, show chat interface
-    document.getElementById('roomSelection').style.display = 'none';
-    document.getElementById('chatInterface').style.display = 'block';
+    // Get elements
+    const roomSelection = document.getElementById('roomSelection');
+    const chatInterface = document.getElementById('chatInterface');
+    
+    // Set up chat interface before showing it
+    chatInterface.style.display = 'block';
+    
+    // Small delay to ensure elements are positioned
+    setTimeout(() => {
+        roomSelection.style.display = 'none';
+        chatInterface.classList.add('visible');
+    }, 0);
     
     // Add user to room and track presence
     currentUserRef = updateRoomCount(roomNumber);
@@ -183,6 +192,8 @@ function joinRoom(roomNumber) {
         const message = snapshot.val();
         addMessageToContainer(message.text);
     });
+
+    document.body.classList.add('in-chat');
 }
 
 // Make sure chatInterface is hidden initially
@@ -224,36 +235,19 @@ function checkAndClearEmptyRoom(roomNumber) {
 
 // Modify your leaveRoom function
 function leaveRoom() {
-    const roomToCheck = currentRoom; // Store room number before clearing currentRoom
-    
-    if (messageListener) {
-        database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
-        messageListener = null;
-    }
-    
-    // Remove user from room
-    if (currentUserRef) {
-        currentUserRef.remove()
-            .then(() => {
-                console.log("User removed from room");
-                // Wait a moment for Firebase to update
-                return new Promise(resolve => setTimeout(resolve, 500));
-            })
-            .then(() => {
-                // Check if room is empty after user leaves
-                return checkAndClearEmptyRoom(roomToCheck);
-            })
-            .catch(error => console.error("Error in leaveRoom:", error));
-    }
-    
     currentRoom = null;
-    currentUserRef = null;
+    if (currentUserRef) {
+        currentUserRef.remove();
+        currentUserRef = null;
+    }
     
-    // Switch back to room selection
-    chatInterface.style.display = 'none';
-    roomSelection.style.display = 'block';
-    roomInput.value = '';
-    messageContainer.innerHTML = '';
+    // Simple display toggle
+    document.getElementById('chatInterface').style.display = 'none';
+    document.getElementById('roomSelection').style.display = 'flex';
+    document.body.classList.remove('in-chat');
+    
+    // Clear the room input
+    document.getElementById('roomInput').value = '';
 }
 
 function sendMessage() {
