@@ -82,7 +82,112 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ... rest of your event listeners and functions ...
+    // Add event listeners for all buttons
+    sendButton.addEventListener('click', sendMessage);
+    clearButton.addEventListener('click', clearHistory);
+    leaveRoomButton.addEventListener('click', leaveRoom);
+
+    // Add these functions if they don't exist
+    function sendMessage() {
+        const message = textarea.value.trim();
+        if (message) {
+            // Get a reference to the messages in the current room
+            const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+            
+            // Push the new message to Firebase
+            messagesRef.push({
+                text: message,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Clear the textarea
+            textarea.value = '';
+        }
+    }
+
+    function clearHistory() {
+        // Clear the message container
+        messageContainer.innerHTML = '';
+        
+        // Clear messages in Firebase for current room
+        const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+        messagesRef.remove();
+    }
+
+    function leaveRoom() {
+        // Reset the room
+        currentRoom = null;
+        
+        // Hide chat interface
+        chatInterface.style.display = 'none';
+        chatInterface.classList.remove('visible');
+        
+        // Show room selection
+        roomSelection.style.display = 'flex';
+        
+        // Clear the input
+        roomInput.value = '';
+        
+        // Clear the message container
+        messageContainer.innerHTML = '';
+        
+        // Remove in-chat class from body
+        document.body.classList.remove('in-chat');
+    }
+
+    // Listen for messages in the current room
+    function listenToMessages(roomNumber) {
+        const messagesRef = firebase.database().ref('rooms/' + roomNumber + '/messages');
+        
+        messagesRef.on('child_added', (snapshot) => {
+            const message = snapshot.val();
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.textContent = message.text;
+            messageContainer.appendChild(messageElement);
+            
+            // Scroll to the bottom
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        });
+    }
+
+    // Add this to your joinRoom function
+    function joinRoom(roomNumber) {
+        console.log("Joining room:", roomNumber);
+        currentRoom = roomNumber;
+        
+        // Update display with transitions
+        const chatInterface = document.getElementById('chatInterface');
+        const textarea = document.getElementById('myTextarea');
+        
+        // Clear the textarea
+        textarea.value = '';
+        
+        chatInterface.style.display = 'block';
+        // Rest of your existing joinRoom code...
+        
+        // Start listening to messages
+        listenToMessages(roomNumber);
+    }
+
+    // Also join room when pressing Enter in the room input
+    roomInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            console.log("Enter pressed in room input");
+            const roomNumber = roomInput.value.trim();
+            if (roomNumber) {
+                joinRoom(roomNumber);
+            }
+        }
+    });
+
+    // Optional: Add enter key support for sending messages
+    textarea.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
 });
 
 let currentRoom = null;
@@ -164,38 +269,6 @@ function updateRoomCount(roomNumber) {
 
 let currentUserRef = null; // Add this with your other global variables
 
-// Modify your joinRoom function
-function joinRoom(roomNumber) {
-    console.log("Joining room:", roomNumber);
-    currentRoom = roomNumber;
-    
-    // Update display with transitions
-    const chatInterface = document.getElementById('chatInterface');
-    const textarea = document.getElementById('myTextarea');
-    
-    // Clear the textarea
-    textarea.value = '';
-    
-    chatInterface.style.display = 'block';
-    // Rest of your existing joinRoom code...
-}
-
-// Also join room when pressing Enter in the room input
-roomInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        console.log("Enter pressed in room input");
-        const roomNumber = roomInput.value.trim();
-        if (roomNumber) {
-            joinRoom(roomNumber);
-        }
-    }
-});
-
-// Leave Room
-leaveRoomButton.addEventListener('click', () => {
-    leaveRoom();
-});
-
 // Add this function to check and clear empty rooms
 function checkAndClearEmptyRoom(roomNumber) {
     const roomRef = database.ref(`rooms/${roomNumber}`);
@@ -217,99 +290,7 @@ function checkAndClearEmptyRoom(roomNumber) {
         });
 }
 
-// Modify your leaveRoom function
-function leaveRoom() {
-    const roomToCheck = currentRoom;
-    
-    if (messageListener) {
-        database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
-        messageListener = null;
-    }
-    
-    // Remove user from room
-    if (currentUserRef) {
-        currentUserRef.remove()
-            .then(() => {
-                console.log("User removed from room");
-                return new Promise(resolve => setTimeout(resolve, 500));
-            })
-            .then(() => {
-                return checkAndClearEmptyRoom(roomToCheck);
-            })
-            .catch(error => console.error("Error in leaveRoom:", error));
-    }
-    
-    // Clear all stored data
-    currentRoom = null;
-    currentUserRef = null;
-    messageContainer.innerHTML = '';
-    
-    // Switch back to room selection with proper styling
-    document.getElementById('chatInterface').style.display = 'none';
-    document.getElementById('roomSelection').style.display = 'flex';
-    document.body.classList.remove('in-chat');
-    document.getElementById('roomInput').value = '';
-}
-
-function sendMessage() {
-    const message = textarea.value;
-    if (message.trim() !== '' && currentRoom) {
-        // Save message to Firebase under the current room
-        database.ref(`rooms/${currentRoom}/messages`).push({
-            text: message,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        })
-        .then(() => console.log("Message saved to Firebase"))
-        .catch(error => console.error("Error saving message:", error));
-        
-        textarea.value = '';
-    }
-}
-
-// Send button click handler
-sendButton.addEventListener('click', sendMessage);
-
-// Enter key handler
-textarea.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
-
-// Clear button click handler
-clearButton.addEventListener('click', function() {
-    if (confirm('Are you sure you want to clear all messages? This cannot be undone.')) {
-        // Clear Firebase database for current room
-        database.ref(`rooms/${currentRoom}/messages`).remove()
-            .then(() => {
-                console.log("Messages cleared from Firebase");
-                messageContainer.innerHTML = '';
-            })
-            .catch(error => console.error("Error clearing messages:", error));
-    }
-});
-
-function addMessageToContainer(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message';
-    messageDiv.textContent = message;
-    messageContainer.insertBefore(messageDiv, messageContainer.firstChild);
-}
-
-// When updating user count
-function updateUserCount(count) {
-    const userCountElement = document.querySelector('#roomInfo .user-count');
-    if (userCountElement) {
-        userCountElement.style.opacity = '0';
-        setTimeout(() => {
-            userCountElement.textContent = `${count} user${count !== 1 ? 's' : ''} online`;
-            userCountElement.style.opacity = '1';
-        }, 500);
-    }
-}
-
-// Add this to handle tab/window closing
+// Add this function to handle tab/window closing
 window.addEventListener('beforeunload', function() {
     if (currentRoom && currentUserRef) {
         currentUserRef.remove();
