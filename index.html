@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Let me show you this!</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <title>Chat Room</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Room Selection Interface -->
+    <!-- Room Selection Screen -->
     <div id="roomSelection">
         <h1>Enter a Room</h1>
         <input type="text" id="roomInput" class="room-input" placeholder="Enter room number">
@@ -21,20 +18,19 @@
     <div id="chatInterface">
         <div class="input-container">
             <div id="roomInfo"></div>
-            <div class="input-wrapper">
-                <textarea id="myTextarea" rows="1" placeholder="Type a message..."></textarea>
-                <div class="button-container">
-                    <button id="sendButton">Send</button>
-                    <button id="clearButton">Clear History</button>
-                    <button id="leaveRoomButton">Leave Room</button>
-                </div>
+            <textarea id="myTextarea" placeholder="Type your message..."></textarea>
+            <div class="button-container">
+                <button id="sendButton">Send</button>
+                <button id="leaveButton">Leave Room</button>
             </div>
         </div>
         <div id="messageContainer"></div>
     </div>
-    
-    <div id="versionInfo"></div>
-    
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
