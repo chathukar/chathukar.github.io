@@ -15,22 +15,39 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 console.log("Firebase initialized");
 
-// Add this at the top of your file after Firebase initialization
+// Add these at the top of your file after Firebase initialization
 let lastActiveTime = Date.now();
+localStorage.setItem('lastActiveTime', lastActiveTime);
+
+// Check on page load if we need to refresh
+const storedLastActiveTime = parseInt(localStorage.getItem('lastActiveTime') || '0');
+const timeInactive = Date.now() - storedLastActiveTime;
+if (timeInactive > 1000) { // 1 second threshold
+    console.log("Page was inactive for too long, refreshing...");
+    window.location.replace(window.location.href);
+}
+
+// Update timestamp regularly while page is active
+setInterval(() => {
+    if (!document.hidden) {
+        lastActiveTime = Date.now();
+        localStorage.setItem('lastActiveTime', lastActiveTime);
+    }
+}, 1000);
 
 // Handle page visibility changes
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // Page became visible
         const timeAway = Date.now() - lastActiveTime;
-        // If the page was hidden for more than 1 second, refresh
         if (timeAway > 1000) {
             console.log("Page was hidden for too long, refreshing...");
-            window.location.reload();
+            window.location.replace(window.location.href);
         }
     } else {
         // Page is being hidden
         lastActiveTime = Date.now();
+        localStorage.setItem('lastActiveTime', lastActiveTime);
     }
 });
 
@@ -269,7 +286,6 @@ function leaveRoom() {
     document.getElementById('roomSelection').style.display = 'flex';
     document.body.classList.remove('in-chat');
     document.getElementById('roomInput').value = '';
-}
 
 function sendMessage() {
     const message = textarea.value;
