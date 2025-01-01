@@ -15,6 +15,25 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 console.log("Firebase initialized");
 
+// Add this at the top of your file after Firebase initialization
+let lastActiveTime = Date.now();
+
+// Handle page visibility changes
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        // Page became visible
+        const timeAway = Date.now() - lastActiveTime;
+        // If the page was hidden for more than 1 second, refresh
+        if (timeAway > 1000) {
+            console.log("Page was hidden for too long, refreshing...");
+            window.location.reload();
+        }
+    } else {
+        // Page is being hidden
+        lastActiveTime = Date.now();
+    }
+});
+
 // Version tracking function
 function updateVersionInfo() {
     const now = new Date();
