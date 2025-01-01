@@ -220,9 +220,12 @@ function checkAndClearEmptyRoom(roomNumber) {
                 return roomRef.child('messages').remove()
                     .then(() => {
                         console.log("Messages cleared successfully");
-                        // Clear messages from display if we're still on this room
-                        if (currentRoom === roomNumber) {
-                            messageContainer.innerHTML = '';
+                        // Clear messages from display
+                        messageContainer.innerHTML = '';
+                        // Remove the message listener
+                        if (messageListener) {
+                            roomRef.child('messages').off('child_added', messageListener);
+                            messageListener = null;
                         }
                     });
             }
@@ -230,12 +233,12 @@ function checkAndClearEmptyRoom(roomNumber) {
         .catch(error => console.error("Error in checkAndClearEmptyRoom:", error));
 }
 
-// Modify your leaveRoom function
+// Update the leaveRoom function
 function leaveRoom() {
     if (currentRoom) {
-        const roomToCheck = currentRoom; // Store room number before nulling it
-        currentRoom = null;
+        const roomToCheck = currentRoom;
         
+        // Remove user from room
         if (currentUserRef) {
             currentUserRef.remove()
                 .then(() => {
@@ -246,12 +249,13 @@ function leaveRoom() {
             currentUserRef = null;
         }
         
-        // Simple display toggle
+        // Reset room state
+        currentRoom = null;
+        
+        // Update UI
         document.getElementById('chatInterface').style.display = 'none';
         document.getElementById('roomSelection').style.display = 'flex';
         document.body.classList.remove('in-chat');
-        
-        // Clear the room input
         document.getElementById('roomInput').value = '';
     }
 }
