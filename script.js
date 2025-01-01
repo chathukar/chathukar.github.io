@@ -208,56 +208,57 @@ leaveRoomButton.addEventListener('click', () => {
 
 // Add this function to check and clear empty rooms
 function checkAndClearEmptyRoom(roomNumber) {
-    console.log("Checking if room is empty:", roomNumber);
     const roomRef = database.ref(`rooms/${roomNumber}`);
     
     return roomRef.child('users').once('value')
-        .then((snapshot) => {
-            console.log("Users in room:", snapshot.numChildren());
-            if (!snapshot.exists() || snapshot.numChildren() === 0) {
+        .then(snapshot => {
+            // If no users in room
+            if (!snapshot.exists() || snapshot.val() === 0) {
                 console.log("Room is empty, clearing messages");
-                // Clear messages from Firebase
+                // Delete all messages
                 return roomRef.child('messages').remove()
                     .then(() => {
-                        console.log("Messages cleared successfully");
-                        // Clear messages from display
-                        messageContainer.innerHTML = '';
-                        // Remove the message listener
-                        if (messageListener) {
-                            roomRef.child('messages').off('child_added', messageListener);
-                            messageListener = null;
-                        }
+                        console.log("Messages cleared from empty room");
+                    })
+                    .catch(error => {
+                        console.error("Error clearing messages:", error);
                     });
             }
-        })
-        .catch(error => console.error("Error in checkAndClearEmptyRoom:", error));
+        });
 }
 
-// Update the leaveRoom function
+// Modify your leaveRoom function
 function leaveRoom() {
-    if (currentRoom) {
-        const roomToCheck = currentRoom;
-        
-        // Remove user from room
-        if (currentUserRef) {
-            currentUserRef.remove()
-                .then(() => {
-                    // Check and clear room after user leaves
-                    return checkAndClearEmptyRoom(roomToCheck);
-                })
-                .catch(error => console.error("Error in leave room:", error));
-            currentUserRef = null;
-        }
-        
-        // Reset room state
-        currentRoom = null;
-        
-        // Update UI
-        document.getElementById('chatInterface').style.display = 'none';
-        document.getElementById('roomSelection').style.display = 'flex';
-        document.body.classList.remove('in-chat');
-        document.getElementById('roomInput').value = '';
+    const roomToCheck = currentRoom;
+    
+    if (messageListener) {
+        database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
+        messageListener = null;
     }
+    
+    // Remove user from room
+    if (currentUserRef) {
+        currentUserRef.remove()
+            .then(() => {
+                console.log("User removed from room");
+                return new Promise(resolve => setTimeout(resolve, 500));
+            })
+            .then(() => {
+                return checkAndClearEmptyRoom(roomToCheck);
+            })
+            .catch(error => console.error("Error in leaveRoom:", error));
+    }
+    
+    // Clear all stored data
+    currentRoom = null;
+    currentUserRef = null;
+    messageContainer.innerHTML = '';
+    
+    // Switch back to room selection with proper styling
+    document.getElementById('chatInterface').style.display = 'none';
+    document.getElementById('roomSelection').style.display = 'flex';
+    document.body.classList.remove('in-chat');
+    document.getElementById('roomInput').value = '';
 }
 
 function sendMessage() {
