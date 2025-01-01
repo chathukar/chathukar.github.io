@@ -129,6 +129,20 @@ leaveRoomButton.addEventListener('click', () => {
     leaveRoom();
 });
 
+// Add this function to check and clear empty rooms
+function checkAndClearEmptyRoom(roomNumber) {
+    const roomRef = database.ref(`rooms/${roomNumber}`);
+    roomRef.child('users').once('value', (snapshot) => {
+        if (!snapshot.exists() || snapshot.numChildren() === 0) {
+            console.log("Room is empty, clearing messages");
+            // Clear all messages from empty room
+            roomRef.child('messages').remove()
+                .then(() => console.log("Cleared messages from empty room"))
+                .catch(error => console.error("Error clearing messages:", error));
+        }
+    });
+}
+
 // Modify your leaveRoom function
 function leaveRoom() {
     if (messageListener) {
@@ -137,7 +151,11 @@ function leaveRoom() {
     
     // Remove user from room
     if (currentUserRef) {
-        currentUserRef.remove();
+        currentUserRef.remove()
+            .then(() => {
+                // Check if room is empty after user leaves
+                checkAndClearEmptyRoom(currentRoom);
+            });
         currentUserRef = null;
     }
     
