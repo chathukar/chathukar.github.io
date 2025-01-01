@@ -15,6 +15,26 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 console.log("Firebase initialized");
 
+// Version tracking function
+function updateVersionInfo() {
+    const now = new Date();
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+    };
+    const timeString = now.toLocaleString('en-US', options);
+    document.getElementById('versionInfo').textContent = `Version: ${timeString}`;
+}
+
+// Call it when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    updateVersionInfo();
+});
+
 let currentRoom = null;
 let messageListener = null;
 
@@ -144,21 +164,3 @@ function addMessageToContainer(message) {
     messageDiv.textContent = message;
     messageContainer.insertBefore(messageDiv, messageContainer.firstChild);
 }
-
-// Add this near the top of your script.js after Firebase initialization
-function updateVersionInfo() {
-    const now = new Date();
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZoneName: 'short'
-    };
-    const timeString = now.toLocaleString('en-US', options);
-    document.getElementById('versionInfo').textContent = `Version: ${timeString}`;
-}
-
-// Call it when the page loads
-updateVersionInfo();
