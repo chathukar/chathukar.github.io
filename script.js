@@ -131,35 +131,48 @@ leaveRoomButton.addEventListener('click', () => {
 
 // Add this function to check and clear empty rooms
 function checkAndClearEmptyRoom(roomNumber) {
+    console.log("Checking if room is empty:", roomNumber);
     const roomRef = database.ref(`rooms/${roomNumber}`);
-    roomRef.child('users').once('value', (snapshot) => {
-        if (!snapshot.exists() || snapshot.numChildren() === 0) {
-            console.log("Room is empty, clearing messages");
-            // Clear all messages from empty room
-            roomRef.child('messages').remove()
-                .then(() => console.log("Cleared messages from empty room"))
-                .catch(error => console.error("Error clearing messages:", error));
-        }
-    });
+    
+    return roomRef.child('users').once('value')
+        .then((snapshot) => {
+            console.log("Users in room:", snapshot.numChildren());
+            if (!snapshot.exists() || snapshot.numChildren() === 0) {
+                console.log("Room is empty, clearing messages");
+                return roomRef.child('messages').remove();
+            }
+        })
+        .then(() => {
+            console.log("Room check/clear complete");
+        })
+        .catch(error => console.error("Error in checkAndClearEmptyRoom:", error));
 }
 
 // Modify your leaveRoom function
 function leaveRoom() {
+    const roomToCheck = currentRoom; // Store room number before clearing currentRoom
+    
     if (messageListener) {
-        database.ref(`rooms/${currentRoom}/messages`).off('child_added', messageListener);
+        database.ref(`rooms/${roomToCheck}/messages`).off('child_added', messageListener);
     }
     
     // Remove user from room
     if (currentUserRef) {
         currentUserRef.remove()
             .then(() => {
+                console.log("User removed from room");
+                // Wait a moment for Firebase to update
+                return new Promise(resolve => setTimeout(resolve, 500));
+            })
+            .then(() => {
                 // Check if room is empty after user leaves
-                checkAndClearEmptyRoom(currentRoom);
-            });
-        currentUserRef = null;
+                return checkAndClearEmptyRoom(roomToCheck);
+            })
+            .catch(error => console.error("Error in leaveRoom:", error));
     }
     
     currentRoom = null;
+    currentUserRef = null;
     messageListener = null;
     
     // Switch back to room selection
