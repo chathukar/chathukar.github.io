@@ -124,6 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentUserRef) {
                 currentUserRef.remove();
                 currentUserRef = null;
+                
+                // Add this line to check and clear room after user leaves
+                checkAndClearEmptyRoom(currentRoom);
             }
             
             // Reset the room
