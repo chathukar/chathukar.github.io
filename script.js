@@ -138,12 +138,14 @@ function setupPresenceHandling(userRef, roomNumber) {
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
     
+    // First time setup
     if (!roomInfo.querySelector('.room-number')) {
         roomInfo.innerHTML = `
             <div class="room-number">Room ${roomNumber}</div>
             <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
     } else {
+        // Just update the user count with fade
         const userCountElement = roomInfo.querySelector('.user-count');
         userCountElement.style.opacity = '0';
         
@@ -159,9 +161,12 @@ function updateRoomCount(roomNumber) {
     const roomRef = database.ref(`rooms/${roomNumber}`);
     const userRef = roomRef.child('users').push(true);
     
+    // Set up disconnect handler
+    userRef.onDisconnect().remove();
+    
     roomRef.child('users').on('value', (snapshot) => {
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        updateRoomInfo(roomNumber, userCount);
+        updateRoomInfo(roomInput.value, userCount); // Use roomInput.value instead of roomNumber
     });
     
     return userRef;
@@ -174,37 +179,22 @@ function joinRoom(roomNumber) {
     console.log("Joining room:", roomNumber);
     currentRoom = roomNumber;
     
-    // Get elements
-    const roomSelection = document.getElementById('roomSelection');
-    const chatInterface = document.getElementById('chatInterface');
-    
-    // Set up chat interface before showing it
-    chatInterface.style.display = 'block';
-    
-    // Small delay to ensure elements are positioned
-    setTimeout(() => {
-        roomSelection.style.display = 'none';
-        chatInterface.classList.add('visible');
-    }, 0);
+    document.getElementById('roomSelection').style.display = 'none';
+    document.getElementById('chatInterface').style.display = 'block';
     
     // Add user to room and track presence
     currentUserRef = updateRoomCount(roomNumber);
     
-    // Clear previous messages display
     messageContainer.innerHTML = '';
     
-    // Remove previous listener if exists
     if (messageListener) {
         database.ref(`rooms/${currentRoom}/messages`).off('child_added', messageListener);
     }
     
-    // Listen for messages in this room
     messageListener = database.ref(`rooms/${currentRoom}/messages`).on('child_added', (snapshot) => {
         const message = snapshot.val();
         addMessageToContainer(message.text);
     });
-
-    document.body.classList.add('in-chat');
 }
 
 // Make sure chatInterface is hidden initially
@@ -329,3 +319,10 @@ function updateUserCount(count) {
         }, 500);
     }
 }
+
+// Add this to handle tab/window closing
+window.addEventListener('beforeunload', function() {
+    if (currentRoom && currentUserRef) {
+        currentUserRef.remove();
+    }
+});
