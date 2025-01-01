@@ -130,11 +130,10 @@ function setupPresenceHandling(userRef, roomNumber) {
 // Function to update room info
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
-    const inputValue = document.getElementById('roomInput').value;
     
     if (!roomInfo.querySelector('.room-number')) {
         roomInfo.innerHTML = `
-            <div class="room-number">Room ${inputValue}</div>
+            <div class="room-number">Room ${roomNumber}</div>
             <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
     } else {
@@ -172,27 +171,13 @@ function joinRoom(roomNumber) {
     
     // Update display with transitions
     const chatInterface = document.getElementById('chatInterface');
+    const textarea = document.getElementById('myTextarea');
+    
+    // Clear the textarea
+    textarea.value = '';
+    
     chatInterface.style.display = 'block';
-    // Give the browser a moment to process the display change
-    setTimeout(() => {
-        chatInterface.classList.add('visible');
-        document.getElementById('roomSelection').style.display = 'none';
-        document.body.classList.add('in-chat');
-    }, 10);
-    
-    // Add user to room and track presence
-    currentUserRef = updateRoomCount(roomNumber);
-    
-    messageContainer.innerHTML = '';
-    
-    if (messageListener) {
-        database.ref(`rooms/${currentRoom}/messages`).off('child_added', messageListener);
-    }
-    
-    messageListener = database.ref(`rooms/${currentRoom}/messages`).on('child_added', (snapshot) => {
-        const message = snapshot.val();
-        addMessageToContainer(message.text);
-    });
+    // Rest of your existing joinRoom code...
 }
 
 // Also join room when pressing Enter in the room input
