@@ -5,69 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Let me show you this!</title>
     
-    <!-- Import Firebase (using compatibility version) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    
-    <style>
-        body {
-            background-color: #808080;
-        }
-        #messageContainer {
-            margin-top: 20px;
-        }
-        .message {
-            margin: 10px 0;
-        }
-        .button-container {
-            margin-top: 10px;
-        }
-        button {
-            padding: 5px 15px;
-            margin-right: 10px;
-            cursor: pointer;
-        }
-        #roomSelection {
-            text-align: center;
-            margin-top: 50px;
-        }
-        #chatInterface {
-            display: none; /* Hidden by default */
-        }
-        .room-input {
-            padding: 10px;
-            font-size: 16px;
-            margin-right: 10px;
-        }
-        #versionInfo {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Room Selection Interface -->
     <div id="roomSelection">
+        <h1>Enter a Room</h1>
         <input type="text" id="roomInput" class="room-input" placeholder="Enter room number">
         <button id="joinRoomButton">Join Room</button>
     </div>
 
-    <!-- Chat Interface (hidden by default) -->
+    <!-- Chat Interface -->
     <div id="chatInterface">
-        <div id="roomInfo"></div>
-        <textarea id="myTextarea" rows="1" cols="50"></textarea>
-        <div class="button-container">
-            <button id="sendButton">Send</button>
-            <button id="clearButton">Clear History</button>
-            <button id="leaveRoomButton">Leave Room</button>
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea id="myTextarea" rows="1" placeholder="Type a message..."></textarea>
+                <div class="button-container">
+                    <button id="sendButton">Send</button>
+                    <button id="clearButton">Clear History</button>
+                    <button id="leaveRoomButton">Leave Room</button>
+                </div>
+            </div>
         </div>
+        <div id="roomInfo"></div>
         <div id="messageContainer"></div>
     </div>
     
-    <!-- Version Info -->
     <div id="versionInfo"></div>
     
     <script src="script.js"></script>

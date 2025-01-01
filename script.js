@@ -175,17 +175,11 @@ let currentUserRef = null; // Add this with your other global variables
 // Modify your joinRoom function
 function joinRoom(roomNumber) {
     console.log("Joining room:", roomNumber);
-    
-    // Remove existing user reference if it exists
-    if (currentUserRef) {
-        currentUserRef.remove();
-    }
-    
     currentRoom = roomNumber;
     
-    // Switch interfaces
-    roomSelection.style.display = 'none';
-    chatInterface.style.display = 'block';
+    // Hide room selection, show chat interface
+    document.getElementById('roomSelection').style.display = 'none';
+    document.getElementById('chatInterface').style.display = 'block';
     
     // Add user to room and track presence
     currentUserRef = updateRoomCount(roomNumber);
@@ -204,6 +198,11 @@ function joinRoom(roomNumber) {
         addMessageToContainer(message.text);
     });
 }
+
+// Make sure chatInterface is hidden initially
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('chatInterface').style.display = 'none';
+});
 
 // Leave Room
 leaveRoomButton.addEventListener('click', () => {
