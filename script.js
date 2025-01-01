@@ -76,15 +76,50 @@ roomInput.addEventListener('keydown', (e) => {
     }
 });
 
-// Add this after Firebase initialization
+// Add these helper functions at the top of your file
+function setupPresenceHandling(userRef, roomNumber) {
+    // Create a presence reference
+    const presenceRef = database.ref('.info/connected');
+    
+    presenceRef.on('value', (snapshot) => {
+        if (snapshot.val()) {
+            // Client is connected
+            console.log("Client connected");
+            
+            // Remove presence on disconnect or page hide
+            userRef.onDisconnect().remove();
+            
+            // Set presence
+            userRef.set(true);
+        }
+    });
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            console.log("Page hidden");
+            userRef.remove();
+        } else {
+            console.log("Page visible");
+            userRef.set(true);
+        }
+    });
+
+    // Handle before unload
+    window.addEventListener('beforeunload', () => {
+        userRef.remove();
+    });
+}
+
+// Modify your updateRoomCount function
 function updateRoomCount(roomNumber) {
     const roomRef = database.ref(`rooms/${roomNumber}/users`);
     
     // Add this user to the room
     const userRef = roomRef.push(true);
 
-    // Remove user when they disconnect
-    userRef.onDisconnect().remove();
+    // Setup presence handling
+    setupPresenceHandling(userRef, roomNumber);
 
     // Listen for changes in user count
     roomRef.on('value', (snapshot) => {
