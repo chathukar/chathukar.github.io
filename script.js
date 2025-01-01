@@ -303,12 +303,12 @@ let currentUserRef = null; // Add this with your other global variables
 
 // Add this function to check and clear empty rooms
 function checkAndClearEmptyRoom(roomNumber) {
-    const roomRef = database.ref(`rooms/${roomNumber}`);
+    const roomRef = firebase.database().ref(`rooms/${roomNumber}`);
     
-    return roomRef.child('users').once('value')
+    roomRef.child('users').once('value')
         .then(snapshot => {
-            // If no users in room
-            if (!snapshot.exists() || snapshot.val() === 0) {
+            // If no users in room or users node doesn't exist
+            if (!snapshot.exists()) {
                 console.log("Room is empty, clearing messages");
                 // Delete all messages
                 return roomRef.child('messages').remove()
@@ -318,6 +318,18 @@ function checkAndClearEmptyRoom(roomNumber) {
                     .catch(error => {
                         console.error("Error clearing messages:", error);
                     });
+            } else {
+                const users = snapshot.val();
+                if (!users || Object.keys(users).length === 0) {
+                    console.log("Room is empty (no users), clearing messages");
+                    return roomRef.child('messages').remove()
+                        .then(() => {
+                            console.log("Messages cleared from empty room");
+                        })
+                        .catch(error => {
+                            console.error("Error clearing messages:", error);
+                        });
+                }
             }
         });
 }
