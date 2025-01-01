@@ -34,65 +34,59 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Version tracking function
-function updateVersionInfo() {
-    const now = new Date();
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZoneName: 'short'
-    };
-    const timeString = now.toLocaleString('en-US', options);
-    document.getElementById('versionInfo').textContent = `Version: ${timeString}`;
-}
-
-// Call it when the page loads
+// Wrap DOM-dependent code in DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
-    updateVersionInfo();
-});
-
-let currentRoom = null;
-let messageListener = null;
-
-// DOM Elements
-const roomSelection = document.getElementById('roomSelection');
-const chatInterface = document.getElementById('chatInterface');
-const roomInput = document.getElementById('roomInput');
-const joinRoomButton = document.getElementById('joinRoomButton');
-const leaveRoomButton = document.getElementById('leaveButton');
-const roomInfo = document.getElementById('roomInfo');
-const textarea = document.getElementById('myTextarea');
-const messageContainer = document.getElementById('messageContainer');
-const sendButton = document.getElementById('sendButton');
-const clearButton = document.getElementById('clearButton');
-
-// Add console logs to debug
-console.log("Elements found:", {
-    roomSelection, chatInterface, roomInput, joinRoomButton
-});
-
-// Event listener for join button
-document.getElementById('joinRoomButton').addEventListener('click', function() {
-    const roomInput = document.getElementById('roomInput');
-    const roomNumber = roomInput.value.trim();
-    if (roomNumber) {
-        joinRoom(roomNumber);
+    // Version tracking function
+    function updateVersionInfo() {
+        const now = new Date();
+        const options = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZoneName: 'short'
+        };
+        const timeString = now.toLocaleString('en-US', options);
+        document.getElementById('versionInfo').textContent = `Version: ${timeString}`;
     }
-});
 
-// Also join room when pressing Enter in the room input
-roomInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        console.log("Enter pressed in room input");
+    // Call version update
+    updateVersionInfo();
+
+    // Initialize DOM elements
+    const roomSelection = document.getElementById('roomSelection');
+    const chatInterface = document.getElementById('chatInterface');
+    const roomInput = document.getElementById('roomInput');
+    const joinRoomButton = document.getElementById('joinRoomButton');
+    const leaveRoomButton = document.getElementById('leaveButton');
+    const roomInfo = document.getElementById('roomInfo');
+    const textarea = document.getElementById('myTextarea');
+    const messageContainer = document.getElementById('messageContainer');
+    const sendButton = document.getElementById('sendButton');
+    const clearButton = document.getElementById('clearButton');
+
+    // Add console logs to debug
+    console.log("Elements found:", {
+        roomSelection, chatInterface, roomInput, joinRoomButton
+    });
+
+    // Make sure chatInterface is hidden initially
+    chatInterface.style.display = 'none';
+
+    // Add your event listeners here
+    joinRoomButton.addEventListener('click', function() {
         const roomNumber = roomInput.value.trim();
         if (roomNumber) {
             joinRoom(roomNumber);
         }
-    }
+    });
+
+    // ... rest of your event listeners and functions ...
 });
+
+let currentRoom = null;
+let messageListener = null;
 
 // Add these helper functions at the top of your file
 function setupPresenceHandling(userRef, roomNumber) {
@@ -201,9 +195,15 @@ function joinRoom(roomNumber) {
     });
 }
 
-// Make sure chatInterface is hidden initially
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('chatInterface').style.display = 'none';
+// Also join room when pressing Enter in the room input
+roomInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        console.log("Enter pressed in room input");
+        const roomNumber = roomInput.value.trim();
+        if (roomNumber) {
+            joinRoom(roomNumber);
+        }
+    }
 });
 
 // Leave Room
