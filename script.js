@@ -76,6 +76,28 @@ roomInput.addEventListener('keydown', (e) => {
     }
 });
 
+// Add this after Firebase initialization
+function updateRoomCount(roomNumber) {
+    const roomRef = database.ref(`rooms/${roomNumber}/users`);
+    
+    // Add this user to the room
+    const userRef = roomRef.push(true);
+
+    // Remove user when they disconnect
+    userRef.onDisconnect().remove();
+
+    // Listen for changes in user count
+    roomRef.on('value', (snapshot) => {
+        const userCount = snapshot.numChildren();
+        roomInfo.textContent = `Room: ${roomNumber} (${userCount} user${userCount !== 1 ? 's' : ''} online)`;
+    });
+
+    return userRef;
+}
+
+let currentUserRef = null; // Add this with your other global variables
+
+// Modify your joinRoom function
 function joinRoom(roomNumber) {
     console.log("Joining room:", roomNumber);
     currentRoom = roomNumber;
@@ -83,7 +105,9 @@ function joinRoom(roomNumber) {
     // Switch interfaces
     roomSelection.style.display = 'none';
     chatInterface.style.display = 'block';
-    roomInfo.textContent = `Room: ${roomNumber}`;
+    
+    // Add user to room and track presence
+    currentUserRef = updateRoomCount(roomNumber);
     
     // Clear previous messages
     messageContainer.innerHTML = '';
@@ -105,10 +129,18 @@ leaveRoomButton.addEventListener('click', () => {
     leaveRoom();
 });
 
+// Modify your leaveRoom function
 function leaveRoom() {
     if (messageListener) {
         database.ref(`rooms/${currentRoom}/messages`).off('child_added', messageListener);
     }
+    
+    // Remove user from room
+    if (currentUserRef) {
+        currentUserRef.remove();
+        currentUserRef = null;
+    }
+    
     currentRoom = null;
     messageListener = null;
     
