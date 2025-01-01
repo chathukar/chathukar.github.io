@@ -115,24 +115,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function leaveRoom() {
-        // Reset the room
-        currentRoom = null;
-        
-        // Hide chat interface
-        chatInterface.style.display = 'none';
-        chatInterface.classList.remove('visible');
-        
-        // Show room selection
-        roomSelection.style.display = 'flex';
-        
-        // Clear the input
-        roomInput.value = '';
-        
-        // Clear the message container
-        messageContainer.innerHTML = '';
-        
-        // Remove in-chat class from body
-        document.body.classList.remove('in-chat');
+        if (currentRoom) {
+            // Remove message listeners for the current room
+            const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+            messagesRef.off(); // Remove all listeners
+            
+            // Remove presence
+            if (currentUserRef) {
+                currentUserRef.remove();
+                currentUserRef = null;
+            }
+            
+            // Reset the room
+            currentRoom = null;
+            
+            // Hide chat interface
+            chatInterface.style.display = 'none';
+            chatInterface.classList.remove('visible');
+            
+            // Show room selection
+            roomSelection.style.display = 'flex';
+            
+            // Clear the input
+            roomInput.value = '';
+            
+            // Clear the message container
+            messageContainer.innerHTML = '';
+            
+            // Remove in-chat class from body
+            document.body.classList.remove('in-chat');
+            
+            console.log("Left room successfully");
+        }
     }
 
     // Listen for messages in the current room
