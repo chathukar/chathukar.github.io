@@ -306,3 +306,15 @@ function addMessageToContainer(message) {
     messageDiv.textContent = message;
     messageContainer.insertBefore(messageDiv, messageContainer.firstChild);
 }
+
+// When updating user count
+function updateUserCount(count) {
+    const userCountElement = document.querySelector('#roomInfo .user-count');
+    if (userCountElement) {
+        userCountElement.style.opacity = '0';
+        setTimeout(() => {
+            userCountElement.textContent = `${count} user${count !== 1 ? 's' : ''} online`;
+            userCountElement.style.opacity = '1';
+        }, 500);
+    }
+}

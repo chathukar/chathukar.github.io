@@ -119,9 +119,7 @@ button, input, textarea {
     text-align: center;
     margin-top: 5px;
     margin-bottom: 20px;
-    opacity: 0;
-    animation: fadeIn 1s ease-in forwards;
-    animation-delay: 2s;
+    transition: opacity 1s ease-in;
 }
 
 #messageContainer {
