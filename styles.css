@@ -53,25 +53,53 @@ button, input, textarea {
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    display: none;
-    height: 100vh;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 20px;
 }
 
-#roomInfo {
+/* Update animations */
+@keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#roomInfo .room-number {
+    display: block;
     text-align: center;
-    padding: 10px;
-    margin-top: 20px;
-    font-size: 14px;
     color: #ECECF1;
+    font-size: 2em;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: fadeIn 1s steps(50) forwards;
+}
+
+#roomInfo .user-count {
+    display: block;
+    font-size: 16px;
+    font-weight: normal;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeIn 1s ease-in forwards;
+    animation-delay: 2s;
 }
 
 #messageContainer {
-    margin-top: 140px;
+    padding-top: 230px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
 }
 
 .message {
@@ -84,7 +112,7 @@ button, input, textarea {
 
 .input-container {
     position: fixed;
-    top: 20px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -116,6 +144,7 @@ button, input, textarea {
 
 .button-container {
     margin-top: 10px;
+    margin-bottom: 20px;
     display: flex;
     gap: 10px;
     justify-content: center;
