@@ -156,18 +156,25 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Joining room:", roomNumber);
         currentRoom = roomNumber;
         
-        // Update display with transitions
-        const chatInterface = document.getElementById('chatInterface');
-        const textarea = document.getElementById('myTextarea');
-        
-        // Clear the textarea
-        textarea.value = '';
-        
+        // Hide room selection and show chat interface
+        roomSelection.style.display = 'none';
         chatInterface.style.display = 'block';
-        // Rest of your existing joinRoom code...
+        
+        // Add this line to trigger the fade-in animation
+        setTimeout(() => chatInterface.classList.add('visible'), 0);
+        
+        // Add in-chat class to body
+        document.body.classList.add('in-chat');
+        
+        // Setup presence handling and update room count
+        currentUserRef = updateRoomCount(roomNumber);
+        setupPresenceHandling(currentUserRef, roomNumber);
         
         // Start listening to messages
         listenToMessages(roomNumber);
+        
+        // Update room info
+        updateRoomInfo(roomNumber, 1); // Initial count of 1
     }
 
     // Also join room when pressing Enter in the room input
