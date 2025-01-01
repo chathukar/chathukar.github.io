@@ -15,17 +15,76 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 console.log("Firebase initialized");
 
+let currentRoom = null;
+let messageListener = null;
+
+// DOM Elements
+const roomSelection = document.getElementById('roomSelection');
+const chatInterface = document.getElementById('chatInterface');
+const roomInput = document.getElementById('roomInput');
+const joinRoomButton = document.getElementById('joinRoomButton');
+const leaveRoomButton = document.getElementById('leaveRoomButton');
+const roomInfo = document.getElementById('roomInfo');
 const textarea = document.getElementById('myTextarea');
 const messageContainer = document.getElementById('messageContainer');
 const sendButton = document.getElementById('sendButton');
 const clearButton = document.getElementById('clearButton');
 
-// Function to send message
+// Join Room
+joinRoomButton.addEventListener('click', () => {
+    const roomNumber = roomInput.value.trim();
+    if (roomNumber) {
+        joinRoom(roomNumber);
+    }
+});
+
+// Leave Room
+leaveRoomButton.addEventListener('click', () => {
+    leaveRoom();
+});
+
+function joinRoom(roomNumber) {
+    currentRoom = roomNumber;
+    
+    // Switch interfaces
+    roomSelection.style.display = 'none';
+    chatInterface.style.display = 'block';
+    roomInfo.textContent = `Room: ${roomNumber}`;
+    
+    // Clear previous messages
+    messageContainer.innerHTML = '';
+    
+    // Remove previous listener if exists
+    if (messageListener) {
+        database.ref(`rooms/${currentRoom}/messages`).off('child_added', messageListener);
+    }
+    
+    // Listen for messages in this room
+    messageListener = database.ref(`rooms/${currentRoom}/messages`).on('child_added', (snapshot) => {
+        const message = snapshot.val();
+        addMessageToContainer(message.text);
+    });
+}
+
+function leaveRoom() {
+    if (messageListener) {
+        database.ref(`rooms/${currentRoom}/messages`).off('child_added', messageListener);
+    }
+    currentRoom = null;
+    messageListener = null;
+    
+    // Switch back to room selection
+    chatInterface.style.display = 'none';
+    roomSelection.style.display = 'block';
+    roomInput.value = '';
+    messageContainer.innerHTML = '';
+}
+
 function sendMessage() {
     const message = textarea.value;
-    if (message.trim() !== '') {
-        // Save message to Firebase
-        database.ref('messages').push({
+    if (message.trim() !== '' && currentRoom) {
+        // Save message to Firebase under the current room
+        database.ref(`rooms/${currentRoom}/messages`).push({
             text: message,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         })
@@ -35,12 +94,6 @@ function sendMessage() {
         textarea.value = '';
     }
 }
-
-// Listen for new messages
-database.ref('messages').on('child_added', (snapshot) => {
-    const message = snapshot.val();
-    addMessageToContainer(message.text);
-});
 
 // Send button click handler
 sendButton.addEventListener('click', sendMessage);
@@ -56,11 +109,10 @@ textarea.addEventListener('keydown', function(e) {
 // Clear button click handler
 clearButton.addEventListener('click', function() {
     if (confirm('Are you sure you want to clear all messages? This cannot be undone.')) {
-        // Clear Firebase database
-        database.ref('messages').remove()
+        // Clear Firebase database for current room
+        database.ref(`rooms/${currentRoom}/messages`).remove()
             .then(() => {
                 console.log("Messages cleared from Firebase");
-                // Clear message container
                 messageContainer.innerHTML = '';
             })
             .catch(error => console.error("Error clearing messages:", error));

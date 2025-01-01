@@ -27,15 +27,38 @@
             margin-right: 10px;
             cursor: pointer;
         }
+        #roomSelection {
+            text-align: center;
+            margin-top: 50px;
+        }
+        #chatInterface {
+            display: none; /* Hidden by default */
+        }
+        .room-input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
-    <textarea id="myTextarea" rows="1" cols="50"></textarea>
-    <div class="button-container">
-        <button id="sendButton">Send</button>
-        <button id="clearButton">Clear History</button>
+    <!-- Room Selection Interface -->
+    <div id="roomSelection">
+        <input type="text" id="roomInput" class="room-input" placeholder="Enter room number">
+        <button id="joinRoomButton">Join Room</button>
     </div>
-    <div id="messageContainer"></div>
+
+    <!-- Chat Interface (hidden by default) -->
+    <div id="chatInterface">
+        <div id="roomInfo"></div>
+        <textarea id="myTextarea" rows="1" cols="50"></textarea>
+        <div class="button-container">
+            <button id="sendButton">Send</button>
+            <button id="clearButton">Clear History</button>
+            <button id="leaveRoomButton">Leave Room</button>
+        </div>
+        <div id="messageContainer"></div>
+    </div>
     
     <script src="script.js"></script>
 </body>
