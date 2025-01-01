@@ -119,7 +119,8 @@ button, input, textarea {
     text-align: center;
     margin-top: 5px;
     margin-bottom: 20px;
-    opacity: 1; /* Start visible */
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
 }
 
 #messageContainer {
