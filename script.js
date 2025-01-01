@@ -62,7 +62,7 @@ const roomSelection = document.getElementById('roomSelection');
 const chatInterface = document.getElementById('chatInterface');
 const roomInput = document.getElementById('roomInput');
 const joinRoomButton = document.getElementById('joinRoomButton');
-const leaveRoomButton = document.getElementById('leaveRoomButton');
+const leaveRoomButton = document.getElementById('leaveButton');
 const roomInfo = document.getElementById('roomInfo');
 const textarea = document.getElementById('myTextarea');
 const messageContainer = document.getElementById('messageContainer');
@@ -176,9 +176,15 @@ function joinRoom(roomNumber) {
     console.log("Joining room:", roomNumber);
     currentRoom = roomNumber;
     
-    document.getElementById('roomSelection').style.display = 'none';
-    document.getElementById('chatInterface').style.display = 'block';
-    document.body.classList.add('in-chat');
+    // Update display with transitions
+    const chatInterface = document.getElementById('chatInterface');
+    chatInterface.style.display = 'block';
+    // Give the browser a moment to process the display change
+    setTimeout(() => {
+        chatInterface.classList.add('visible');
+        document.getElementById('roomSelection').style.display = 'none';
+        document.body.classList.add('in-chat');
+    }, 10);
     
     // Add user to room and track presence
     currentUserRef = updateRoomCount(roomNumber);
