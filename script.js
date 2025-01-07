@@ -269,20 +269,11 @@ function setupPresenceHandling(userRef, roomNumber) {
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
     
-    if (!roomInfo.querySelector('.room-number')) {
-        roomInfo.innerHTML = `
-            <div class="room-number">Room ${roomNumber}</div>
-            <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
-        `;
-    } else {
-        const userCountElement = roomInfo.querySelector('.user-count');
-        userCountElement.style.opacity = '0';
-        
-        setTimeout(() => {
-            userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-            userCountElement.style.opacity = '1';
-        }, 1000);
-    }
+    // Always recreate the room info content
+    roomInfo.innerHTML = `
+        <div class="room-number">Room ${roomNumber}</div>
+        <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+    `;
 }
 
 // Use this function when updating room count
