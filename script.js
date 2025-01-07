@@ -339,5 +339,6 @@ function checkAndClearEmptyRoom(roomNumber) {
 window.addEventListener('beforeunload', function() {
     if (currentRoom && currentUserRef) {
         currentUserRef.remove();
+        checkAndClearEmptyRoom(currentRoom);
     }
 });
