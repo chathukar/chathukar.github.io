@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log("Left room successfully");
         }
+        currentRoomNumber = null;  // Reset room number when leaving
     }
 
     // Listen for messages in the current room
@@ -270,11 +271,18 @@ function setupPresenceHandling(userRef, roomNumber) {
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
     
-    // Always recreate the room info content
-    roomInfo.innerHTML = `
-        <div class="room-number">Room ${roomNumber}</div>
-        <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
-    `;
+    if (currentRoomNumber !== roomNumber) {
+        // Room changed - update everything with animation
+        roomInfo.innerHTML = `
+            <div class="room-number">Room ${roomNumber}</div>
+            <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+        `;
+        currentRoomNumber = roomNumber;
+    } else {
+        // Same room - just update user count
+        const userCountElement = roomInfo.querySelector('.user-count');
+        userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+    }
 }
 
 // Use this function when updating room count
