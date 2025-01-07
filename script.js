@@ -10,6 +10,7 @@ const firebaseConfig = {
     measurementId: "G-PPFE0F696B"
 };
 
+//Chathu
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
