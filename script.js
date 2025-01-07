@@ -248,7 +248,10 @@ function setupPresenceHandling(userRef, roomNumber) {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             console.log("Page hidden");
-            userRef.remove();
+            if (currentRoom && currentUserRef) {
+                currentUserRef.remove();
+                checkAndClearEmptyRoom(currentRoom);
+            }
         } else {
             console.log("Page visible");
             // Force rejoin if we have a current room
@@ -304,6 +307,7 @@ let currentUserRef = null; // Add this with your other global variables
 
 // Add this function to check and clear empty rooms
 function checkAndClearEmptyRoom(roomNumber) {
+    console.log("Checking if room is empty:", roomNumber);
     const roomRef = firebase.database().ref(`rooms/${roomNumber}`);
     
     roomRef.child('users').once('value')
