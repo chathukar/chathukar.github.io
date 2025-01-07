@@ -127,12 +127,16 @@ button, input, textarea {
 #messageContainer {
     padding: 20px;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 20px;
     width: calc(100% - 40px);
     max-width: 768px;
     margin: 0 auto;
-    margin-top: 230px;  /* Increased from 220px to 230px */
+    position: fixed;
+    top: 220px;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -163,6 +167,7 @@ button, input, textarea {
     z-index: 1000;
     padding: 20px;
     background-color: var(--background-color);
+    height: 120px;
 }
 
 @keyframes containerFadeIn {

@@ -162,10 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
             messageElement.textContent = message.text;
-            messageContainer.appendChild(messageElement);
-            
-            // Scroll to the bottom
-            messageContainer.scrollTop = messageContainer.scrollHeight;
+            messageContainer.insertBefore(messageElement, messageContainer.firstChild);
         });
     }
 
