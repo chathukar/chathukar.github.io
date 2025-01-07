@@ -191,8 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start listening to messages
         listenToMessages(roomNumber);
         
-        // Update room info
-        updateRoomInfo(roomNumber, 1); // Initial count of 1
+        // Update room info directly here
+        updateRoomInfo(roomNumber, 1);
+        console.log("Updated room info to:", roomNumber);
     }
 
     // Also join room when pressing Enter in the room input
