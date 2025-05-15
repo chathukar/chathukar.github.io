@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timeZoneName: 'short'
         };
         const timeString = now.toLocaleString('en-US', options);
-        const builderVersion = "2";
+        const builderVersion = "3";
         document.getElementById('versionInfo').textContent = `Version: ${timeString} (Builder ${builderVersion})`;
     }
 
@@ -181,7 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add in-chat class to body
         document.body.classList.add('in-chat');
         
-        // Setup presence handling and update room count FIRST
+        // Force an initial room info update
+        updateRoomInfo(roomNumber, 1);  // Add this line to show initial state
+        
+        // Setup presence handling and update room count
         currentUserRef = updateRoomCount(roomNumber);
         setupPresenceHandling(currentUserRef, roomNumber);
         
