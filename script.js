@@ -176,6 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
         roomSelection.style.display = 'none';
         chatInterface.style.display = 'block';
         
+        // Add this line to trigger the fade-in animation
+        setTimeout(() => chatInterface.classList.add('visible'), 0);
+        
         // Add in-chat class to body
         document.body.classList.add('in-chat');
         
@@ -188,9 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update room info directly here
         updateRoomInfo(roomNumber, 1);
-                
-        // Add this line to trigger the fade-in animation
-        setTimeout(() => chatInterface.classList.add('visible'), 0);
         console.log("Updated room info to:", roomNumber);
     }
 
