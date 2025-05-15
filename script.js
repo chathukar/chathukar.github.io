@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timeZoneName: 'short'
         };
         const timeString = now.toLocaleString('en-US', options);
-        const builderVersion = "1";
+        const builderVersion = "2";
         document.getElementById('versionInfo').textContent = `Version: ${timeString} (Builder ${builderVersion})`;
     }
 
@@ -172,27 +172,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function joinRoom(roomNumber) {
         console.log("Joining room:", roomNumber);
         currentRoom = roomNumber;
+        currentRoomNumber = roomNumber;
         
         // Hide room selection and show chat interface
         roomSelection.style.display = 'none';
         chatInterface.style.display = 'block';
         
-        // Add this line to trigger the fade-in animation
-        setTimeout(() => chatInterface.classList.add('visible'), 0);
-        
         // Add in-chat class to body
         document.body.classList.add('in-chat');
         
-        // Setup presence handling and update room count
+        // Setup presence handling and update room count FIRST
         currentUserRef = updateRoomCount(roomNumber);
         setupPresenceHandling(currentUserRef, roomNumber);
         
         // Start listening to messages
         listenToMessages(roomNumber);
         
-        // Update room info directly here
-        updateRoomInfo(roomNumber, 1);
-        console.log("Updated room info to:", roomNumber);
+        // Move the animation trigger to the end
+        setTimeout(() => chatInterface.classList.add('visible'), 0);
     }
 
     // Also join room when pressing Enter in the room input
@@ -225,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let currentRoom = null;
 let messageListener = null;
+let currentRoomNumber = null;  // Add this line
 
 // Add these helper functions at the top of your file
 function setupPresenceHandling(userRef, roomNumber) {
@@ -288,13 +286,16 @@ function updateRoomInfo(roomNumber, userCount) {
 
 // Use this function when updating room count
 function updateRoomCount(roomNumber) {
+    console.log("Updating room count for room:", roomNumber);
     const roomRef = database.ref(`rooms/${roomNumber}`);
     const userRef = roomRef.child('users').push(true);
     
     userRef.onDisconnect().remove();
     
     roomRef.child('users').on('value', (snapshot) => {
+        console.log("Room users snapshot:", snapshot.val());
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        console.log("User count:", userCount);
         updateRoomInfo(roomNumber, userCount);
     });
     
