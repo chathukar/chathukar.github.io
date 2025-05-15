@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timeZoneName: 'short'
         };
         const timeString = now.toLocaleString('en-US', options);
-        const builderVersion = "3";
+        const builderVersion = "4";
         document.getElementById('versionInfo').textContent = `Version: ${timeString} (Builder ${builderVersion})`;
     }
 
@@ -303,6 +303,7 @@ function updateRoomCount(roomNumber) {
     
     userRef.onDisconnect().remove();
     
+    // Add listener for room users
     roomRef.child('users').on('value', (snapshot) => {
         console.log("Room users snapshot:", snapshot.val());
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
