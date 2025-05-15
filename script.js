@@ -273,6 +273,12 @@ function setupPresenceHandling(userRef, roomNumber) {
 function updateRoomInfo(roomNumber, userCount) {
     const roomInfo = document.getElementById('roomInfo');
     
+    // Add this check
+    if (!roomInfo) {
+        console.error("Room info element not found!");
+        return;
+    }
+    
     if (currentRoomNumber !== roomNumber) {
         // Room changed - update everything with animation
         roomInfo.innerHTML = `
@@ -283,7 +289,9 @@ function updateRoomInfo(roomNumber, userCount) {
     } else {
         // Same room - just update user count
         const userCountElement = roomInfo.querySelector('.user-count');
-        userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+        if (userCountElement) {
+            userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+        }
     }
 }
 
