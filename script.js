@@ -49,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
             timeZoneName: 'short'
         };
         const timeString = now.toLocaleString('en-US', options);
-        document.getElementById('versionInfo').textContent = `Version: ${timeString}`;
+        const builderVersion = "1";
+        document.getElementById('versionInfo').textContent = `Version: ${timeString} (Builder ${builderVersion})`;
     }
 
     // Call version update
