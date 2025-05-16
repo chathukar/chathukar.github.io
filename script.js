@@ -188,12 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start listening to messages
         listenToMessages(roomNumber);
         
-        // Move the animation trigger and initial room info update together to the end
+        // Move the animation trigger to the end
         setTimeout(() => {
             chatInterface.classList.add('visible');
-            // Force an initial room info update AFTER the 'visible' class is added
             updateRoomInfo(roomNumber, 1);
-        }, 0); // Use a small delay (0ms pushes it to the next event loop tick)
+        }, 100); // Increased delay to 100ms
     }
 
     // Also join room when pressing Enter in the room input
