@@ -181,9 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add in-chat class to body
         document.body.classList.add('in-chat');
         
-        // Force an initial room info update
-        updateRoomInfo(roomNumber, 1);  // Add this line to show initial state
-        
         // Setup presence handling and update room count
         currentUserRef = updateRoomCount(roomNumber);
         setupPresenceHandling(currentUserRef, roomNumber);
@@ -191,8 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start listening to messages
         listenToMessages(roomNumber);
         
-        // Move the animation trigger to the end
-        setTimeout(() => chatInterface.classList.add('visible'), 0);
+        // Move the animation trigger and initial room info update together to the end
+        setTimeout(() => {
+            chatInterface.classList.add('visible');
+            // Force an initial room info update AFTER the 'visible' class is added
+            updateRoomInfo(roomNumber, 1);
+        }, 0); // Use a small delay (0ms pushes it to the next event loop tick)
     }
 
     // Also join room when pressing Enter in the room input
