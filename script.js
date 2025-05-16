@@ -221,34 +221,40 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set the height to match the content
         this.style.height = this.scrollHeight + 'px';
     });
-
-    // Function to update room info
-    function updateRoomInfo(roomNumber, userCount) {
-        console.log(`Entering updateRoomInfo for room ${roomNumber}, user count ${userCount}`);
-
-        const roomInfo = document.getElementById('roomInfo');
-
-        console.log("Found roomInfo element, attempting to set innerHTML.");
-
-        if (currentRoomNumber !== roomNumber) {
-            // Room changed - update everything with animation
-            roomInfo.innerHTML = `
-                <div class="room-number">Room ${roomNumber}</div>
-                <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
-            `;
-            currentRoomNumber = roomNumber;
-            console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users.`);
-        } else {
-            // Same room - just update user count
-            const userCountElement = roomInfo.querySelector('.user-count');
-            if (userCountElement) {
-                userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-                console.log(`Updated user count in room ${roomNumber} to ${userCount}.`);
-            }
-        }
-         console.log("Exiting updateRoomInfo.");
-    }
 });
+
+// Function to update room info - MOVED OUTSIDE DOMContentLoaded
+function updateRoomInfo(roomNumber, userCount) {
+    console.log(`Entering updateRoomInfo for room ${roomNumber}, user count ${userCount}`);
+
+    const roomInfo = document.getElementById('roomInfo');
+
+    // Add this check
+    if (!roomInfo) {
+        console.error("Room info element not found!");
+        return;
+    }
+
+    console.log("Found roomInfo element, attempting to set innerHTML.");
+
+    if (currentRoomNumber !== roomNumber) {
+        // Room changed - update everything with animation
+        roomInfo.innerHTML = `
+            <div class="room-number">Room ${roomNumber}</div>
+            <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+        `;
+        currentRoomNumber = roomNumber;
+        console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users.`);
+    } else {
+        // Same room - just update user count
+        const userCountElement = roomInfo.querySelector('.user-count');
+        if (userCountElement) {
+            userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+            console.log(`Updated user count in room ${roomNumber} to ${userCount}.`);
+        }
+    }
+     console.log("Exiting updateRoomInfo.");
+}
 
 let currentRoom = null;
 let messageListener = null;
