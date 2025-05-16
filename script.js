@@ -246,10 +246,19 @@ function updateRoomInfo(roomNumber, userCount) {
         console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users.`);
     } else {
         // Same room - just update user count
+        console.log("Same room, only updating user count.");
         const userCountElement = roomInfo.querySelector('.user-count');
         if (userCountElement) {
-            userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-            console.log(`Updated user count in room ${roomNumber} to ${userCount}.`);
+            // Set opacity to 0 to start the fade out (instantaneous for visual effect)
+            userCountElement.style.opacity = '0';
+
+            // Use a small timeout to allow the opacity change to register
+            setTimeout(() => {
+                userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+                // Set opacity back to 1 to trigger the fade in transition
+                userCountElement.style.opacity = '1';
+                console.log(`Updated user count in room ${roomNumber} to ${userCount}.`);
+            }, 10); // A small delay, like 10ms, is usually sufficient
         }
     }
      console.log("Exiting updateRoomInfo.");
