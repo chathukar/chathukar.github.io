@@ -229,7 +229,7 @@ button, input, textarea {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
-    width: 120px;
+    width: 150px;
 }
 
 button {
