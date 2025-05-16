@@ -172,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function joinRoom(roomNumber) {
         console.log("Joining room:", roomNumber);
         currentRoom = roomNumber;
-        currentRoomNumber = roomNumber;
         
         // Hide room selection and show chat interface
         roomSelection.style.display = 'none';
