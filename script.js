@@ -241,31 +241,30 @@ function updateRoomInfo(roomNumber, userCount) {
         console.log("Room changed, updating innerHTML.");
         // Room changed - update everything with animation
         roomInfo.innerHTML = `
-            <div class="room-number">Room ${roomNumber}</div>
-            <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+            <div class="room-number fade-in-animated">Room ${roomNumber}</div>
+            <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
         currentRoomNumber = roomNumber;
         console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users. currentRoomNumber is now: ${currentRoomNumber}`);
     } else {
         // Same room - just update user count
         console.log("Same room, only updating user count.");
-        const userCountElement = roomInfo.querySelector('.user-count');
-        console.log (userCountElement + "this should be reading true.");
-        if (userCountElement) {
-            // Set opacity to 0 to start the fade out (instantaneous for visual effect)
-            userCountElement.style.opacity = '0';
+        const oldUserCountElement = roomInfo.querySelector('.user-count');
 
-            // Force a reflow/repaint to ensure the opacity change is registered by the browser
-            // Accessing offsetHeight is a common way to do this.
-            void userCountElement.offsetHeight;
+        if (oldUserCountElement) {
+            // Remove the old user count element
+            oldUserCountElement.remove();
 
-            // Use a small timeout to allow the opacity change to register
-            setTimeout(() => {
-                userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-                // Set opacity back to 1 to trigger the fade in transition
-                userCountElement.style.opacity = '1';
-                console.log(`Updated user count in room ${roomNumber} to ${userCount}.`);
-            }, 10); // Keep the small delay
+            // Create a new user count element
+            const newUserCountElement = document.createElement('div');
+            // Apply both the user-count class and the fade-in-animated class
+            newUserCountElement.className = 'user-count fade-in-animated';
+            newUserCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+
+            // Append the new user count element to roomInfo
+            roomInfo.appendChild(newUserCountElement);
+
+            console.log(`Replaced and updated user count in room ${roomNumber} to ${userCount} with fade-in animation.`);
         }
     }
      console.log("Exiting updateRoomInfo.");
