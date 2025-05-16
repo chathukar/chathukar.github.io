@@ -172,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function joinRoom(roomNumber) {
         console.log("Joining room:", roomNumber);
         currentRoom = roomNumber;
-        currentRoomNumber = roomNumber;
         
         // Hide room selection and show chat interface
         roomSelection.style.display = 'none';
@@ -180,9 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add in-chat class to body
         document.body.classList.add('in-chat');
-        
-        // Force an initial room info update
-        updateRoomInfo(roomNumber, 1);  // Add this line to show initial state
         
         // Setup presence handling and update room count
         currentUserRef = updateRoomCount(roomNumber);
@@ -192,7 +188,10 @@ document.addEventListener('DOMContentLoaded', () => {
         listenToMessages(roomNumber);
         
         // Move the animation trigger to the end
-        setTimeout(() => chatInterface.classList.add('visible'), 0);
+        setTimeout(() => {
+            chatInterface.classList.add('visible');
+            updateRoomInfo(roomNumber, 1);
+        }, 100); // Increased delay to 100ms
     }
 
     // Also join room when pressing Enter in the room input
@@ -222,6 +221,54 @@ document.addEventListener('DOMContentLoaded', () => {
         this.style.height = this.scrollHeight + 'px';
     });
 });
+
+// Function to update room info - MOVED OUTSIDE DOMContentLoaded
+function updateRoomInfo(roomNumber, userCount) {
+    console.log(`Entering updateRoomInfo for room ${roomNumber}, user count ${userCount}`);
+    console.log("currentRoomNumber before update:", currentRoomNumber);
+
+    const roomInfo = document.getElementById('roomInfo');
+
+    // Add this check
+    if (!roomInfo) {
+        console.error("Room info element not found!");
+        return;
+    }
+
+    console.log("Found roomInfo element, attempting to set innerHTML.");
+
+    if (currentRoomNumber !== roomNumber) {
+        console.log("Room changed, updating innerHTML.");
+        // Room changed - update everything with animation
+        roomInfo.innerHTML = `
+            <div class="room-number fade-in-animated">Room ${roomNumber}</div>
+            <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+        `;
+        currentRoomNumber = roomNumber;
+        console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users. currentRoomNumber is now: ${currentRoomNumber}`);
+    } else {
+        // Same room - just update user count
+        console.log("Same room, only updating user count.");
+        const oldUserCountElement = roomInfo.querySelector('.user-count');
+
+        if (oldUserCountElement) {
+            // Remove the old user count element
+            oldUserCountElement.remove();
+
+            // Create a new user count element
+            const newUserCountElement = document.createElement('div');
+            // Apply both the user-count class and the fade-in-animated class
+            newUserCountElement.className = 'user-count fade-in-animated';
+            newUserCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
+
+            // Append the new user count element to roomInfo
+            roomInfo.appendChild(newUserCountElement);
+
+            console.log(`Replaced and updated user count in room ${roomNumber} to ${userCount} with fade-in animation.`);
+        }
+    }
+     console.log("Exiting updateRoomInfo.");
+}
 
 let currentRoom = null;
 let messageListener = null;
@@ -267,32 +314,6 @@ function setupPresenceHandling(userRef, roomNumber) {
     window.addEventListener('beforeunload', () => {
         userRef.remove();
     });
-}
-
-// Function to update room info
-function updateRoomInfo(roomNumber, userCount) {
-    const roomInfo = document.getElementById('roomInfo');
-    
-    // Add this check
-    if (!roomInfo) {
-        console.error("Room info element not found!");
-        return;
-    }
-    
-    if (currentRoomNumber !== roomNumber) {
-        // Room changed - update everything with animation
-        roomInfo.innerHTML = `
-            <div class="room-number">Room ${roomNumber}</div>
-            <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
-        `;
-        currentRoomNumber = roomNumber;
-    } else {
-        // Same room - just update user count
-        const userCountElement = roomInfo.querySelector('.user-count');
-        if (userCountElement) {
-            userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-        }
-    }
 }
 
 // Use this function when updating room count

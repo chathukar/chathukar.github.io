@@ -109,9 +109,10 @@ button, input, textarea {
     font-size: 2em;
     font-weight: bold;
     white-space: nowrap;
-    opacity: 0;
-    animation: fadeIn 1s steps(50) forwards;
-    animation-iteration-count: 1;
+    /* These rules will be moved to .fade-in-animated */
+    /* opacity: 0; */
+    /* animation: fadeIn 1s steps(50) forwards; */
+    /* animation-iteration-count: 1; */
 }
 
 #roomInfo .user-count {
@@ -168,7 +169,6 @@ button, input, textarea {
     z-index: 1000;
     padding: 20px;
     background-color: var(--background-color);
-    height: 120px;
 }
 
 @keyframes containerFadeIn {
@@ -230,7 +230,7 @@ button, input, textarea {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
-    width: 120px;
+    width: 130px;
 }
 
 button {
@@ -260,4 +260,22 @@ button:hover {
 /* When chat interface is shown, allow scrolling again */
 body.in-chat {
     overflow: hidden;
+}
+
+/* New reusable fade-in animation class */
+.fade-in-animated {
+    opacity: 0; /* Start invisible */
+    animation: fadeIn 1s steps(50) forwards; /* Apply the fadeIn animation */
+    animation-iteration-count: 1;
+}
+
+#roomInfo .user-count {
+    display: block;
+    font-size: 16px;
+    font-weight: normal;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
 } 
