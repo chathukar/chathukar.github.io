@@ -225,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Function to update room info - MOVED OUTSIDE DOMContentLoaded
 function updateRoomInfo(roomNumber, userCount) {
     console.log(`Entering updateRoomInfo for room ${roomNumber}, user count ${userCount}`);
+    console.log("currentRoomNumber before update:", currentRoomNumber);
 
     const roomInfo = document.getElementById('roomInfo');
 
@@ -237,13 +238,14 @@ function updateRoomInfo(roomNumber, userCount) {
     console.log("Found roomInfo element, attempting to set innerHTML.");
 
     if (currentRoomNumber !== roomNumber) {
+        console.log("Room changed, updating innerHTML.");
         // Room changed - update everything with animation
         roomInfo.innerHTML = `
             <div class="room-number">Room ${roomNumber}</div>
             <div class="user-count">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
         `;
         currentRoomNumber = roomNumber;
-        console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users.`);
+        console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users. currentRoomNumber is now: ${currentRoomNumber}`);
     } else {
         // Same room - just update user count
         console.log("Same room, only updating user count.");
@@ -252,13 +254,17 @@ function updateRoomInfo(roomNumber, userCount) {
             // Set opacity to 0 to start the fade out (instantaneous for visual effect)
             userCountElement.style.opacity = '0';
 
+            // Force a reflow/repaint to ensure the opacity change is registered by the browser
+            // Accessing offsetHeight is a common way to do this.
+            void userCountElement.offsetHeight;
+
             // Use a small timeout to allow the opacity change to register
             setTimeout(() => {
                 userCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
                 // Set opacity back to 1 to trigger the fade in transition
                 userCountElement.style.opacity = '1';
                 console.log(`Updated user count in room ${roomNumber} to ${userCount}.`);
-            }, 10); // A small delay, like 10ms, is usually sufficient
+            }, 10); // Keep the small delay
         }
     }
      console.log("Exiting updateRoomInfo.");
