@@ -250,6 +250,7 @@ function updateRoomInfo(roomNumber, userCount) {
         // Same room - just update user count
         console.log("Same room, only updating user count.");
         const userCountElement = roomInfo.querySelector('.user-count');
+        console.log (userCountElement + "this should be reading true.");
         if (userCountElement) {
             // Set opacity to 0 to start the fade out (instantaneous for visual effect)
             userCountElement.style.opacity = '0';
