@@ -10,6 +10,9 @@ const firebaseConfig = {
     measurementId: "G-PPFE0F696B"
 };
 
+// Constants
+const INACTIVITY_TIME_ALLOWED = 30000; // 30 seconds in milliseconds
+
 //Chathu
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -24,8 +27,8 @@ document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // Page became visible
         const timeAway = Date.now() - lastActiveTime;
-        // If the page was hidden for more than 5 seconds, refresh
-        if (timeAway > 10000) {
+        // If the page was hidden for more than allowed time, refresh
+        if (timeAway > INACTIVITY_TIME_ALLOWED) {
             console.log("Page was hidden for too long, refreshing...");
             window.location.reload();
         }
@@ -273,7 +276,7 @@ function setupPresenceHandling(userRef, roomNumber) {
                     currentUserRef.remove();
                     checkAndClearEmptyRoom(currentRoom);
                 }
-            }, 30000); // 30 second delay
+            }, INACTIVITY_TIME_ALLOWED); // Use the constant here
         } else {
             console.log("Page visible");
             // Force rejoin if we have a current room
