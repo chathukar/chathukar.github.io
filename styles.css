@@ -68,7 +68,6 @@ button, input, textarea {
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    display: none;
     height: 100vh;
     position: fixed;
     top: 0;
@@ -77,6 +76,8 @@ button, input, textarea {
     width: 100%;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Add a class for when chat is visible */
@@ -134,11 +135,7 @@ button, input, textarea {
     width: calc(100% - 40px);
     max-width: 768px;
     margin: 0 auto;
-    position: fixed;
-    top: 220px;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: 1;  /* Take remaining space */
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -160,15 +157,13 @@ button, input, textarea {
 }
 
 .input-container {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;  /* Changed from fixed to relative */
     width: calc(100% - 40px);
     max-width: 768px;
     z-index: 1000;
     padding: 20px;
     background-color: var(--background-color);
+    margin: 0 auto;
 }
 
 @keyframes containerFadeIn {
