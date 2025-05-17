@@ -206,7 +206,7 @@ button, input, textarea {
     justify-content: center;
     width: 100%;
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 }
 
 /* Make sure these buttons are visible in chat interface */
