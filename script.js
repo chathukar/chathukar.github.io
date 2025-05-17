@@ -259,11 +259,20 @@ function setupPresenceHandling(userRef, roomNumber) {
             // Client is connected
             console.log("Client connected");
             
-            // Remove presence on disconnect
-            userRef.onDisconnect().remove();
-            
-            // Set presence
-            userRef.set(true);
+            // Set up what happens when the client disconnects
+            userRef.onDisconnect().remove().then(() => {
+                // After setting up the disconnect handler, set the presence
+                userRef.set(true);
+                // Also set up the room cleanup on disconnect
+                const roomRef = database.ref(`rooms/${roomNumber}`);
+                roomRef.child('users').onDisconnect().once('value', (snapshot) => {
+                    if (!snapshot.exists() || Object.keys(snapshot.val()).length < 1) {
+                        setTimeout(() => {
+                            checkAndClearEmptyRoom(roomNumber);
+                        }, ROOM_DELETION_TIME);
+                    }
+                });
+            });
         }
     });
 
@@ -277,7 +286,7 @@ function setupPresenceHandling(userRef, roomNumber) {
                     currentUserRef.remove();
                     checkAndClearEmptyRoom(currentRoom);
                 }
-            }, INACTIVITY_TIME_ALLOWED); // Use the constant here
+            }, INACTIVITY_TIME_ALLOWED);
         } else {
             console.log("Page visible");
             // Force rejoin if we have a current room
@@ -286,11 +295,6 @@ function setupPresenceHandling(userRef, roomNumber) {
                 joinRoom(currentRoom);
             }
         }
-    });
-
-    // Handle before unload
-    window.addEventListener('beforeunload', () => {
-        userRef.remove();
     });
 }
 
@@ -359,7 +363,9 @@ function checkAndClearEmptyRoom(roomNumber) {
 // Add this function to handle tab/window closing
 window.addEventListener('beforeunload', function() {
     if (currentRoom && currentUserRef) {
+        // Remove the user reference
         currentUserRef.remove();
+        // Trigger the room cleanup
         checkAndClearEmptyRoom(currentRoom);
     }
 });
