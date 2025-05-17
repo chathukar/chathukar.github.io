@@ -321,28 +321,29 @@ function checkAndClearEmptyRoom(roomNumber) {
     
     roomRef.child('users').once('value')
         .then(snapshot => {
-            // If no users in room or users node doesn't exist
-            if (!snapshot.exists()) {
-                console.log("Room is empty, clearing messages");
-                // Delete all messages
-                return roomRef.child('messages').remove()
-                    .then(() => {
-                        console.log("Messages cleared from empty room");
-                    })
-                    .catch(error => {
-                        console.error("Error clearing messages:", error);
-                    });
-            } else {
+            if (snapshot.exists()) {
                 const users = snapshot.val();
-                if (!users || Object.keys(users).length === 0) {
-                    console.log("Room is empty (no users), clearing messages");
-                    return roomRef.child('messages').remove()
-                        .then(() => {
-                            console.log("Messages cleared from empty room");
-                        })
-                        .catch(error => {
-                            console.error("Error clearing messages:", error);
-                        });
+                const userCount = Object.keys(users).length;
+                
+                // Only start timer if there's less than 1 user
+                if (userCount < 1) {
+                    console.log("Less than 1 user, starting cleanup timer");
+                    setTimeout(() => {
+                        // Check again after delay
+                        roomRef.child('users').once('value')
+                            .then(newSnapshot => {
+                                if (!newSnapshot.exists() || Object.keys(newSnapshot.val()).length < 1) {
+                                    console.log("Room still empty after delay, clearing messages");
+                                    return roomRef.child('messages').remove()
+                                        .then(() => {
+                                            console.log("Messages cleared from empty room");
+                                        })
+                                        .catch(error => {
+                                            console.error("Error clearing messages:", error);
+                                        });
+                                }
+                            });
+                    }, INACTIVITY_TIME_ALLOWED);
                 }
             }
         });
