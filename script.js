@@ -190,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Move the animation trigger to the end
         setTimeout(() => {
             chatInterface.classList.add('visible');
-            updateRoomInfo(roomNumber, 1);
         }, 100); // Increased delay to 100ms
     }
 
@@ -224,50 +223,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to update room info - MOVED OUTSIDE DOMContentLoaded
 function updateRoomInfo(roomNumber, userCount) {
-    console.log(`Entering updateRoomInfo for room ${roomNumber}, user count ${userCount}`);
-    console.log("currentRoomNumber before update:", currentRoomNumber);
-
+    console.log(`Updating room info for room ${roomNumber}, user count ${userCount}`);
+    
     const roomInfo = document.getElementById('roomInfo');
-
-    // Add this check
     if (!roomInfo) {
         console.error("Room info element not found!");
         return;
     }
 
-    console.log("Found roomInfo element, attempting to set innerHTML.");
-
-    if (currentRoomNumber !== roomNumber) {
-        console.log("Room changed, updating innerHTML.");
-        // Room changed - update everything with animation
-        roomInfo.innerHTML = `
-            <div class="room-number fade-in-animated">Room ${roomNumber}</div>
-            <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
-        `;
-        currentRoomNumber = roomNumber;
-        console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users. currentRoomNumber is now: ${currentRoomNumber}`);
-    } else {
-        // Same room - just update user count
-        console.log("Same room, only updating user count.");
-        const oldUserCountElement = roomInfo.querySelector('.user-count');
-
-        if (oldUserCountElement) {
-            // Remove the old user count element
-            oldUserCountElement.remove();
-
-            // Create a new user count element
-            const newUserCountElement = document.createElement('div');
-            // Apply both the user-count class and the fade-in-animated class
-            newUserCountElement.className = 'user-count fade-in-animated';
-            newUserCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-
-            // Append the new user count element to roomInfo
-            roomInfo.appendChild(newUserCountElement);
-
-            console.log(`Replaced and updated user count in room ${roomNumber} to ${userCount} with fade-in animation.`);
-        }
-    }
-     console.log("Exiting updateRoomInfo.");
+    // Always update both room number and user count with animation
+    roomInfo.innerHTML = `
+        <div class="room-number fade-in-animated">Room ${roomNumber}</div>
+        <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+    `;
+    
+    currentRoomNumber = roomNumber;
+    console.log(`Updated room info for room ${roomNumber} with ${userCount} users`);
 }
 
 let currentRoom = null;
@@ -318,17 +289,17 @@ function setupPresenceHandling(userRef, roomNumber) {
 
 // Use this function when updating room count
 function updateRoomCount(roomNumber) {
-    console.log("Updating room count for room:", roomNumber);
+    console.log("Setting up room count listener for room:", roomNumber);
     const roomRef = database.ref(`rooms/${roomNumber}`);
     const userRef = roomRef.child('users').push(true);
     
+    // Remove user reference on disconnect
     userRef.onDisconnect().remove();
     
     // Add listener for room users
     roomRef.child('users').on('value', (snapshot) => {
-        console.log("Room users snapshot:", snapshot.val());
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        console.log("User count:", userCount);
+        console.log("Firebase user count update:", userCount);
         updateRoomInfo(roomNumber, userCount);
     });
     
