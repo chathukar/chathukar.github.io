@@ -267,10 +267,13 @@ function setupPresenceHandling(userRef, roomNumber) {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             console.log("Page hidden");
-            if (currentRoom && currentUserRef) {
-                currentUserRef.remove();
-                checkAndClearEmptyRoom(currentRoom);
-            }
+            // Add a delay before removing the user
+            setTimeout(() => {
+                if (document.hidden && currentRoom && currentUserRef) {
+                    currentUserRef.remove();
+                    checkAndClearEmptyRoom(currentRoom);
+                }
+            }, 30000); // 30 second delay
         } else {
             console.log("Page visible");
             // Force rejoin if we have a current room
