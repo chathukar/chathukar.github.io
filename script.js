@@ -253,25 +253,39 @@ let currentRoomNumber = null;  // Add this line
 function setupPresenceHandling(userRef, roomNumber) {
     // Create a presence reference
     const presenceRef = database.ref('.info/connected');
+    const roomRef = database.ref(`rooms/${roomNumber}`);
     
     presenceRef.on('value', (snapshot) => {
         if (snapshot.val()) {
             // Client is connected
             console.log("Client connected");
             
-            // Set up what happens when the client disconnects
-            userRef.onDisconnect().remove().then(() => {
-                // After setting up the disconnect handler, set the presence
-                userRef.set(true);
-                // Also set up the room cleanup on disconnect
-                const roomRef = database.ref(`rooms/${roomNumber}`);
-                roomRef.child('users').onDisconnect().once('value', (snapshot) => {
-                    if (!snapshot.exists() || Object.keys(snapshot.val()).length < 1) {
-                        setTimeout(() => {
-                            checkAndClearEmptyRoom(roomNumber);
-                        }, ROOM_DELETION_TIME);
-                    }
-                });
+            // Set up presence
+            userRef.set(true);
+            
+            // Set up disconnect handling
+            userRef.onDisconnect().remove();
+            
+            // Listen for changes in the users node
+            roomRef.child('users').on('value', (usersSnapshot) => {
+                const userCount = usersSnapshot.exists() ? Object.keys(usersSnapshot.val()).length : 0;
+                console.log("User count changed:", userCount);
+                
+                if (userCount < 1) {
+                    console.log("Room empty, starting cleanup timer");
+                    setTimeout(() => {
+                        // Check one final time before clearing
+                        roomRef.child('users').once('value', (finalSnapshot) => {
+                            const finalCount = finalSnapshot.exists() ? Object.keys(finalSnapshot.val()).length : 0;
+                            if (finalCount < 1) {
+                                console.log("Room still empty after delay, clearing messages");
+                                roomRef.child('messages').remove()
+                                    .then(() => console.log("Messages cleared"))
+                                    .catch(error => console.error("Error clearing messages:", error));
+                            }
+                        });
+                    }, ROOM_DELETION_TIME);
+                }
             });
         }
     });
@@ -280,16 +294,13 @@ function setupPresenceHandling(userRef, roomNumber) {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             console.log("Page hidden");
-            // Add a delay before removing the user
             setTimeout(() => {
                 if (document.hidden && currentRoom && currentUserRef) {
                     currentUserRef.remove();
-                    checkAndClearEmptyRoom(currentRoom);
                 }
             }, INACTIVITY_TIME_ALLOWED);
         } else {
             console.log("Page visible");
-            // Force rejoin if we have a current room
             if (currentRoom) {
                 console.log("Rejoining room after visibility change");
                 joinRoom(currentRoom);
