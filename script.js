@@ -24,8 +24,8 @@ document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // Page became visible
         const timeAway = Date.now() - lastActiveTime;
-        // If the page was hidden for more than 1 second, refresh
-        if (timeAway > 1000) {
+        // If the page was hidden for more than 5 seconds, refresh
+        if (timeAway > 10000) {
             console.log("Page was hidden for too long, refreshing...");
             window.location.reload();
         }
