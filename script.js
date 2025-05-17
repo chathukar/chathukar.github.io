@@ -321,30 +321,36 @@ function checkAndClearEmptyRoom(roomNumber) {
     
     roomRef.child('users').once('value')
         .then(snapshot => {
-            if (snapshot.exists()) {
-                const users = snapshot.val();
-                const userCount = Object.keys(users).length;
-                
-                // Only start timer if there's less than 1 user
-                if (userCount < 1) {
-                    console.log("Less than 1 user, starting cleanup timer");
-                    setTimeout(() => {
-                        // Check again after delay
-                        roomRef.child('users').once('value')
-                            .then(newSnapshot => {
-                                if (!newSnapshot.exists() || Object.keys(newSnapshot.val()).length < 1) {
-                                    console.log("Room still empty after delay, clearing messages");
-                                    return roomRef.child('messages').remove()
-                                        .then(() => {
-                                            console.log("Messages cleared from empty room");
-                                        })
-                                        .catch(error => {
-                                            console.error("Error clearing messages:", error);
-                                        });
-                                }
-                            });
-                    }, INACTIVITY_TIME_ALLOWED);
-                }
+            // Get user count, defaulting to 0 if snapshot doesn't exist
+            const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            console.log("Current user count:", userCount);
+            
+            // Only start timer if there's less than 1 user
+            if (userCount < 1) {
+                console.log("Less than 1 user, starting cleanup timer");
+                setTimeout(() => {
+                    // Check again after delay
+                    roomRef.child('users').once('value')
+                        .then(newSnapshot => {
+                            const newUserCount = newSnapshot.exists() ? Object.keys(newSnapshot.val()).length : 0;
+                            console.log("User count after delay:", newUserCount);
+                            
+                            if (newUserCount < 1) {
+                                console.log("Room still empty after delay, clearing messages");
+                                return roomRef.child('messages').remove()
+                                    .then(() => {
+                                        console.log("Messages cleared from empty room");
+                                    })
+                                    .catch(error => {
+                                        console.error("Error clearing messages:", error);
+                                    });
+                            } else {
+                                console.log("Users rejoined, keeping room active");
+                            }
+                        });
+                }, INACTIVITY_TIME_ALLOWED);
+            } else {
+                console.log("Room has users, no cleanup needed");
             }
         });
 }
