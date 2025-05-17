@@ -233,7 +233,7 @@ function updateRoomInfo(roomNumber, userCount) {
 
     // Always update both room number and user count with animation
     roomInfo.innerHTML = `
-        <div class="room-number fade-in-animated">Room ${roomNumber}</div>
+        <div class="room-number fade-in-animated">Channel ${roomNumber}</div>
         <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
     `;
     
