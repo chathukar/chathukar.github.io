@@ -128,7 +128,7 @@ button, input, textarea {
 }
 
 #messageContainer {
-    padding: 20px;
+    padding: 5px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -206,7 +206,7 @@ button, input, textarea {
     justify-content: center;
     width: 100%;
     margin-top: 10px;
-    margin-bottom: 0px;
+    margin-bottom: 5px;
 }
 
 /* Make sure these buttons are visible in chat interface */
