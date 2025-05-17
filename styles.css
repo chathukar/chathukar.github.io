@@ -128,7 +128,7 @@ button, input, textarea {
 }
 
 #messageContainer {
-    padding: 5px;
+    padding: 0px;
     display: flex;
     flex-direction: column;
     gap: 20px;
