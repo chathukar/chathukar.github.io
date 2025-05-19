@@ -11,8 +11,8 @@ const firebaseConfig = {
 };
 
 // Constants
-const INACTIVITY_TIME_ALLOWED = 30000; // 30 seconds in milliseconds, user can open up another program before it kicks you out of the room.
-const ROOM_DELETION_TIME = 45000; // The room deletes after all users leave a room with a delay of this amount.
+const INACTIVITY_TIME_ALLOWED = 5000; // 30 seconds in milliseconds, user can open up another program before it kicks you out of the room.
+const ROOM_DELETION_TIME = 10000; // The room deletes after all users leave a room with a delay of this amount.
 
 //Chathu
 // Initialize Firebase
