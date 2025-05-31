@@ -1,21 +1,6 @@
 {
   "rules": {
-    "rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true,
-        "messages": {
-          ".read": true,
-          ".write": true,
-          "$messageId": {
-            ".validate": "newData.hasChildren(['text', 'timestamp'])"
-          }
-        },
-        "users": {
-          ".read": true,
-          ".write": true
-        }
-      }
-    }
+    ".read": "true",
+    ".write": "true"
   }
-} 
+}
