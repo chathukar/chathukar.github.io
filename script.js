@@ -10,6 +10,10 @@ const firebaseConfig = {
     measurementId: "G-PPFE0F696B"
 };
 
+// Constants
+const INACTIVITY_TIME_ALLOWED = 5000; // 30 seconds in milliseconds, user can open up another program before it kicks you out of the room.
+const ROOM_DELETION_TIME = 10000; // The room deletes after all users leave a room with a delay of this amount.
+
 //Chathu
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -24,8 +28,8 @@ document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
         // Page became visible
         const timeAway = Date.now() - lastActiveTime;
-        // If the page was hidden for more than 1 second, refresh
-        if (timeAway > 1000) {
+        // If the page was hidden for more than allowed time, refresh
+        if (timeAway > INACTIVITY_TIME_ALLOWED) {
             console.log("Page was hidden for too long, refreshing...");
             window.location.reload();
         }
@@ -190,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Move the animation trigger to the end
         setTimeout(() => {
             chatInterface.classList.add('visible');
-            updateRoomInfo(roomNumber, 1);
         }, 100); // Increased delay to 100ms
     }
 
@@ -224,50 +227,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to update room info - MOVED OUTSIDE DOMContentLoaded
 function updateRoomInfo(roomNumber, userCount) {
-    console.log(`Entering updateRoomInfo for room ${roomNumber}, user count ${userCount}`);
-    console.log("currentRoomNumber before update:", currentRoomNumber);
-
+    console.log(`Updating room info for room ${roomNumber}, user count ${userCount}`);
+    
     const roomInfo = document.getElementById('roomInfo');
-
-    // Add this check
     if (!roomInfo) {
         console.error("Room info element not found!");
         return;
     }
 
-    console.log("Found roomInfo element, attempting to set innerHTML.");
-
-    if (currentRoomNumber !== roomNumber) {
-        console.log("Room changed, updating innerHTML.");
-        // Room changed - update everything with animation
-        roomInfo.innerHTML = `
-            <div class="room-number fade-in-animated">Room ${roomNumber}</div>
-            <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
-        `;
-        currentRoomNumber = roomNumber;
-        console.log(`Set roomInfo innerHTML for room ${roomNumber} with ${userCount} users. currentRoomNumber is now: ${currentRoomNumber}`);
-    } else {
-        // Same room - just update user count
-        console.log("Same room, only updating user count.");
-        const oldUserCountElement = roomInfo.querySelector('.user-count');
-
-        if (oldUserCountElement) {
-            // Remove the old user count element
-            oldUserCountElement.remove();
-
-            // Create a new user count element
-            const newUserCountElement = document.createElement('div');
-            // Apply both the user-count class and the fade-in-animated class
-            newUserCountElement.className = 'user-count fade-in-animated';
-            newUserCountElement.textContent = `${userCount} user${userCount !== 1 ? 's' : ''} online`;
-
-            // Append the new user count element to roomInfo
-            roomInfo.appendChild(newUserCountElement);
-
-            console.log(`Replaced and updated user count in room ${roomNumber} to ${userCount} with fade-in animation.`);
-        }
-    }
-     console.log("Exiting updateRoomInfo.");
+    // Always update both room number and user count with animation
+    roomInfo.innerHTML = `
+        <div class="room-number fade-in-animated">Channel ${roomNumber}</div>
+        <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
+    `;
+    
+    currentRoomNumber = roomNumber;
+    console.log(`Updated room info for room ${roomNumber} with ${userCount} users`);
 }
 
 let currentRoom = null;
@@ -278,17 +253,40 @@ let currentRoomNumber = null;  // Add this line
 function setupPresenceHandling(userRef, roomNumber) {
     // Create a presence reference
     const presenceRef = database.ref('.info/connected');
+    const roomRef = database.ref(`rooms/${roomNumber}`);
     
     presenceRef.on('value', (snapshot) => {
         if (snapshot.val()) {
             // Client is connected
             console.log("Client connected");
             
-            // Remove presence on disconnect
+            // Set up presence
+            userRef.set(true);
+            
+            // Set up disconnect handling
             userRef.onDisconnect().remove();
             
-            // Set presence
-            userRef.set(true);
+            // Listen for changes in the users node
+            roomRef.child('users').on('value', (usersSnapshot) => {
+                const userCount = usersSnapshot.exists() ? Object.keys(usersSnapshot.val()).length : 0;
+                console.log("User count changed:", userCount);
+                
+                if (userCount < 1) {
+                    console.log("Room empty, starting cleanup timer");
+                    setTimeout(() => {
+                        // Check one final time before clearing
+                        roomRef.child('users').once('value', (finalSnapshot) => {
+                            const finalCount = finalSnapshot.exists() ? Object.keys(finalSnapshot.val()).length : 0;
+                            if (finalCount < 1) {
+                                console.log("Room still empty after delay, clearing messages");
+                                roomRef.child('messages').remove()
+                                    .then(() => console.log("Messages cleared"))
+                                    .catch(error => console.error("Error clearing messages:", error));
+                            }
+                        });
+                    }, ROOM_DELETION_TIME);
+                }
+            });
         }
     });
 
@@ -296,39 +294,34 @@ function setupPresenceHandling(userRef, roomNumber) {
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             console.log("Page hidden");
-            if (currentRoom && currentUserRef) {
-                currentUserRef.remove();
-                checkAndClearEmptyRoom(currentRoom);
-            }
+            setTimeout(() => {
+                if (document.hidden && currentRoom && currentUserRef) {
+                    currentUserRef.remove();
+                }
+            }, INACTIVITY_TIME_ALLOWED);
         } else {
             console.log("Page visible");
-            // Force rejoin if we have a current room
             if (currentRoom) {
                 console.log("Rejoining room after visibility change");
                 joinRoom(currentRoom);
             }
         }
     });
-
-    // Handle before unload
-    window.addEventListener('beforeunload', () => {
-        userRef.remove();
-    });
 }
 
 // Use this function when updating room count
 function updateRoomCount(roomNumber) {
-    console.log("Updating room count for room:", roomNumber);
+    console.log("Setting up room count listener for room:", roomNumber);
     const roomRef = database.ref(`rooms/${roomNumber}`);
     const userRef = roomRef.child('users').push(true);
     
+    // Remove user reference on disconnect
     userRef.onDisconnect().remove();
     
     // Add listener for room users
     roomRef.child('users').on('value', (snapshot) => {
-        console.log("Room users snapshot:", snapshot.val());
         const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        console.log("User count:", userCount);
+        console.log("Firebase user count update:", userCount);
         updateRoomInfo(roomNumber, userCount);
     });
     
@@ -344,29 +337,36 @@ function checkAndClearEmptyRoom(roomNumber) {
     
     roomRef.child('users').once('value')
         .then(snapshot => {
-            // If no users in room or users node doesn't exist
-            if (!snapshot.exists()) {
-                console.log("Room is empty, clearing messages");
-                // Delete all messages
-                return roomRef.child('messages').remove()
-                    .then(() => {
-                        console.log("Messages cleared from empty room");
-                    })
-                    .catch(error => {
-                        console.error("Error clearing messages:", error);
-                    });
-            } else {
-                const users = snapshot.val();
-                if (!users || Object.keys(users).length === 0) {
-                    console.log("Room is empty (no users), clearing messages");
-                    return roomRef.child('messages').remove()
-                        .then(() => {
-                            console.log("Messages cleared from empty room");
-                        })
-                        .catch(error => {
-                            console.error("Error clearing messages:", error);
+            // Get user count, defaulting to 0 if snapshot doesn't exist
+            const userCount = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            console.log("Current user count:", userCount);
+            
+            // Only start timer if there's less than 1 user
+            if (userCount < 1) {
+                console.log("Less than 1 user, starting cleanup timer");
+                setTimeout(() => {
+                    // Check again after delay
+                    roomRef.child('users').once('value')
+                        .then(newSnapshot => {
+                            const newUserCount = newSnapshot.exists() ? Object.keys(newSnapshot.val()).length : 0;
+                            console.log("User count after delay:", newUserCount);
+                            
+                            if (newUserCount < 1) {
+                                console.log("Room still empty after delay, clearing messages");
+                                return roomRef.child('messages').remove()
+                                    .then(() => {
+                                        console.log("Messages cleared from empty room");
+                                    })
+                                    .catch(error => {
+                                        console.error("Error clearing messages:", error);
+                                    });
+                            } else {
+                                console.log("Users rejoined, keeping room active");
+                            }
                         });
-                }
+                }, ROOM_DELETION_TIME);
+            } else {
+                console.log("Room has users, no cleanup needed");
             }
         });
 }
@@ -374,7 +374,9 @@ function checkAndClearEmptyRoom(roomNumber) {
 // Add this function to handle tab/window closing
 window.addEventListener('beforeunload', function() {
     if (currentRoom && currentUserRef) {
+        // Remove the user reference
         currentUserRef.remove();
+        // Trigger the room cleanup
         checkAndClearEmptyRoom(currentRoom);
     }
 });
