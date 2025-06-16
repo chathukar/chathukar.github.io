@@ -112,6 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clearHistory() {
+        if (!currentRoom) return;
+        
         // Clear the message container
         messageContainer.innerHTML = '';
         
@@ -119,16 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContainer.scrollTop = 0;
         
         // Clear messages in Firebase for current room
-        if (currentRoom) {
-            const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
-            messagesRef.remove()
-                .then(() => {
-                    console.log("Messages cleared from Firebase for all users");
-                })
-                .catch((error) => {
-                    console.error("Error clearing messages:", error);
-                });
-        }
+        const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+        
+        // First, get all messages
+        messagesRef.once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                // Then remove them all
+                messagesRef.remove()
+                    .then(() => {
+                        console.log("Messages cleared from Firebase for all users");
+                    })
+                    .catch((error) => {
+                        console.error("Error clearing messages:", error);
+                    });
+            }
+        });
     }
 
     function leaveRoom() {
@@ -202,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesRef.on('value', (snapshot) => {
             if (!snapshot.exists()) {
                 messageContainer.innerHTML = '';
+                messageContainer.scrollTop = 0;
             }
         });
     }
