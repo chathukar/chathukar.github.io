@@ -32,17 +32,26 @@ button, input, textarea {
     height: 100vh;
     justify-content: center;
     overflow: hidden;
-    gap: 20px;
+    gap: 30px;
     position: fixed;
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 #roomSelection h1 {
     margin: 0;
     padding: 0;
+}
+
+.logo {
+    max-width: 300px;
+    height: auto;
+    margin-bottom: 0;
 }
 
 .room-input {
@@ -51,9 +60,13 @@ button, input, textarea {
     border-radius: 8px;
     color: var(--text-color);
     padding: 12px 16px;
-    font-size: 16px;
+    font-size: 14px;
     width: 200px;
     margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
 }
 
 #roomSelection .button-container,
@@ -63,6 +76,12 @@ button, input, textarea {
 
 #joinRoomButton {
     margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: 200px;
+    padding: 8px 16px;
+    font-size: 14px;
 }
 
 #chatInterface {
