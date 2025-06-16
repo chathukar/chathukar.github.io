@@ -176,6 +176,7 @@ button, input, textarea {
     font-family: 'Segoe UI', sans-serif;
     font-weight: bold;
     text-transform: none;
+    font-size: 14px;
 }
 
 .input-container {
