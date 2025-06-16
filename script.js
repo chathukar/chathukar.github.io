@@ -174,15 +174,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function listenToMessages(roomNumber) {
         const messagesRef = firebase.database().ref('rooms/' + roomNumber + '/messages');
         
+        // Remove any existing listeners
+        messagesRef.off();
+        
+        // Listen for child added
         messagesRef.on('child_added', (snapshot) => {
             const message = snapshot.val();
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
             messageElement.textContent = message.text;
+            messageElement.id = snapshot.key; // Add ID to track the message
             messageContainer.insertBefore(messageElement, messageContainer.firstChild);
             
             // Keep scroll position at the top for new messages
             messageContainer.scrollTop = 0;
+        });
+
+        // Listen for child removed
+        messagesRef.on('child_removed', (snapshot) => {
+            const messageElement = document.getElementById(snapshot.key);
+            if (messageElement) {
+                messageElement.remove();
+            }
+        });
+
+        // Listen for value changes (for when all messages are cleared)
+        messagesRef.on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                messageContainer.innerHTML = '';
+            }
         });
     }
 
