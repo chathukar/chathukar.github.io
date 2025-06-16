@@ -87,7 +87,7 @@ button, input, textarea {
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    height: 100vh;
+    height: calc(100vh - 80px); /* Reduce height to stay above browser UI */
     position: fixed;
     top: 0;
     left: 50%;
@@ -97,7 +97,6 @@ button, input, textarea {
     transition: opacity 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
-    padding-bottom: env(safe-area-inset-bottom, 0); /* Add safe area inset */
 }
 
 /* Add a class for when chat is visible */
@@ -159,8 +158,8 @@ button, input, textarea {
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    height: calc(100vh - 280px);
-    padding-bottom: 80px; /* Reduced padding since container is relative now */
+    height: calc(100% - 200px); /* Use percentage instead of viewport units */
+    padding-bottom: 20px;
     margin-bottom: 20px;
 }
 
@@ -188,7 +187,7 @@ button, input, textarea {
 }
 
 .input-container {
-    position: relative; /* Change back to relative */
+    position: relative;
     width: calc(100% - 40px);
     max-width: 768px;
     z-index: 1000;
@@ -319,6 +318,6 @@ body.in-chat {
     }
     
     #messageContainer {
-        padding-bottom: max(100px, calc(env(safe-area-inset-bottom) + 100px));
+        padding-bottom: max(120px, calc(env(safe-area-inset-bottom) + 120px));
     }
 } 
