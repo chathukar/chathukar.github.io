@@ -147,7 +147,7 @@ button, input, textarea {
 }
 
 #messageContainer {
-    padding: 0 20px 40px 20px;
+    padding: 0 20px 80px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -159,7 +159,7 @@ button, input, textarea {
     -ms-overflow-style: none;
     scrollbar-width: none;
     margin-bottom: 20px;
-    height: calc(100vh - 300px);
+    height: calc(100vh - 320px);
     min-height: 0;
     justify-content: flex-start;
 }
@@ -326,6 +326,7 @@ body.in-chat {
     }
     
     #messageContainer {
-        padding-bottom: max(120px, calc(env(safe-area-inset-bottom) + 120px));
+        padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 80px));
+        height: calc(100vh - max(320px, calc(env(safe-area-inset-bottom) + 320px)));
     }
 } 
