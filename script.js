@@ -119,8 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContainer.scrollTop = 0;
         
         // Clear messages in Firebase for current room
-        const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
-        messagesRef.remove();
+        if (currentRoom) {
+            const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+            messagesRef.remove()
+                .then(() => {
+                    console.log("Messages cleared from Firebase for all users");
+                })
+                .catch((error) => {
+                    console.error("Error clearing messages:", error);
+                });
+        }
     }
 
     function leaveRoom() {
