@@ -87,7 +87,7 @@ button, input, textarea {
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    height: calc(100vh - 80px); /* Reduce height to stay above browser UI */
+    height: calc(100vh - env(safe-area-inset-bottom, 0px));
     position: fixed;
     top: 0;
     left: 50%;
@@ -158,8 +158,8 @@ button, input, textarea {
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    height: calc(100% - 200px); /* Use percentage instead of viewport units */
-    padding-bottom: 20px;
+    height: calc(100% - 200px);
+    padding-bottom: env(safe-area-inset-bottom, 20px);
     margin-bottom: 20px;
 }
 
