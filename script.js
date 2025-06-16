@@ -233,9 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set the height to match the content, but don't exceed maxHeight
         const newHeight = Math.min(this.scrollHeight, maxHeight);
         this.style.height = newHeight + 'px';
-        
-        // Convert text to lowercase
-        this.value = this.value.toLowerCase();
     });
 });
 
