@@ -154,12 +154,13 @@ button, input, textarea {
     width: calc(100% - 40px);
     max-width: 768px;
     margin: 0 auto;
-    flex: 1;  /* Take remaining space */
+    flex: 1;
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    height: calc(100vh - 200px);  /* Account for input container and room info */
-    padding-bottom: 20px;  /* Add some padding at the bottom */
+    height: calc(100vh - 280px); /* Increased bottom spacing for mobile */
+    padding-bottom: 100px; /* Increased padding to prevent messages from being hidden */
+    margin-bottom: 20px; /* Add margin to ensure last message is visible */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -186,15 +187,17 @@ button, input, textarea {
 }
 
 .input-container {
-    position: relative;
+    position: fixed; /* Change to fixed to ensure it stays at bottom */
     width: calc(100% - 40px);
     max-width: 768px;
     z-index: 1000;
     padding: 20px;
     background-color: var(--background-color);
     margin: 0 auto;
-    position: sticky;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow to separate from messages */
 }
 
 @keyframes containerFadeIn {
@@ -309,4 +312,15 @@ body.in-chat {
     opacity: 0; /* Start invisible */
     animation: fadeIn 1s steps(50) forwards; /* Apply the fadeIn animation */
     animation-iteration-count: 1;
+}
+
+/* Add safe area insets for modern mobile browsers */
+@supports (padding: max(0px)) {
+    .input-container {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    
+    #messageContainer {
+        padding-bottom: max(100px, calc(env(safe-area-inset-bottom) + 100px));
+    }
 } 
