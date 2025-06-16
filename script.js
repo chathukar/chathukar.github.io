@@ -115,6 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear the message container
         messageContainer.innerHTML = '';
         
+        // Reset scroll position to top
+        messageContainer.scrollTop = 0;
+        
         // Clear messages in Firebase for current room
         const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
         messagesRef.remove();
@@ -169,6 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.className = 'message';
             messageElement.textContent = message.text;
             messageContainer.insertBefore(messageElement, messageContainer.firstChild);
+            
+            // Keep scroll position at the top for new messages
+            messageContainer.scrollTop = 0;
         });
     }
 
@@ -218,10 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add this inside your DOMContentLoaded event listener
     textarea.addEventListener('input', function() {
+        // Set a maximum height for the textarea
+        const maxHeight = 150; // Maximum height in pixels
+        
         // Reset height to auto to get the correct scrollHeight
         this.style.height = 'auto';
-        // Set the height to match the content
-        this.style.height = this.scrollHeight + 'px';
+        
+        // Set the height to match the content, but don't exceed maxHeight
+        const newHeight = Math.min(this.scrollHeight, maxHeight);
+        this.style.height = newHeight + 'px';
+        
         // Convert text to lowercase
         this.value = this.value.toLowerCase();
     });
