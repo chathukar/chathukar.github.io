@@ -222,6 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
         this.style.height = 'auto';
         // Set the height to match the content
         this.style.height = this.scrollHeight + 'px';
+        // Convert text to lowercase
+        this.value = this.value.toLowerCase();
     });
 });
 

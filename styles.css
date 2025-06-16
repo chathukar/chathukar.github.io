@@ -129,21 +129,21 @@ button, input, textarea {
     font-size: 2em;
     font-weight: bold;
     white-space: nowrap;
-    /* These rules will be moved to .fade-in-animated */
-    /* opacity: 0; */
-    /* animation: fadeIn 1s steps(50) forwards; */
-    /* animation-iteration-count: 1; */
+    font-family: 'Segoe UI', sans-serif;
+    text-transform: uppercase;
 }
 
 #roomInfo .user-count {
     display: block;
     font-size: 16px;
-    font-weight: normal;
+    font-weight: bold;
     text-align: center;
     margin-top: 5px;
     margin-bottom: 20px;
     opacity: 1;
     transition: opacity 1s ease-in-out;
+    font-family: 'Segoe UI', sans-serif;
+    text-transform: uppercase;
 }
 
 #messageContainer {
@@ -173,6 +173,9 @@ button, input, textarea {
     line-height: 1.5;
     width: 100%;
     box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: none;
 }
 
 .input-container {
@@ -205,13 +208,20 @@ button, input, textarea {
     border-radius: 8px;
     color: var(--text-color);
     padding: 12px 16px;
-    font-size: 16px;
+    font-size: 14px;
     resize: none;
     height: 45px !important;
     overflow: hidden !important;
     box-sizing: border-box;
     margin-bottom: 10px;
     min-height: 45px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: none;
+}
+
+#chatInterface #myTextarea::placeholder {
+    text-transform: uppercase;
 }
 
 /* Make sure these are removed if they exist elsewhere */
@@ -245,6 +255,9 @@ button, input, textarea {
     font-size: 14px;
     transition: background-color 0.2s;
     width: 130px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 button {
@@ -256,7 +269,10 @@ button {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
-    width: 120px; /* Fixed width for all buttons */
+    width: 120px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 button:hover {
@@ -269,6 +285,9 @@ button:hover {
     right: 10px;
     color: #565869;
     font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 /* When chat interface is shown, allow scrolling again */
@@ -281,15 +300,4 @@ body.in-chat {
     opacity: 0; /* Start invisible */
     animation: fadeIn 1s steps(50) forwards; /* Apply the fadeIn animation */
     animation-iteration-count: 1;
-}
-
-#roomInfo .user-count {
-    display: block;
-    font-size: 16px;
-    font-weight: normal;
-    text-align: center;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
 } 
