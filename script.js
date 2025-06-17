@@ -95,8 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add these functions if they don't exist
     function sendMessage() {
-        const message = textarea.value.trim();
-        if (message) {
+        const message = textarea.value;  // Get raw value
+        console.log("Attempting to send message:", message); // Debug log
+        console.log("Message length:", message.length); // Debug log
+        console.log("Contains newlines:", message.includes('\n')); // Debug log
+        
+        if (message && message.trim()) {  // Check if there's actual content
+            console.log("Message is valid, sending..."); // Debug log
             // Get a reference to the messages in the current room
             const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
             
@@ -104,10 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesRef.push({
                 text: message,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log("Message sent successfully"); // Debug log
+                // Clear the textarea
+                textarea.value = '';
+            }).catch(error => {
+                console.error("Error sending message:", error); // Debug log
             });
-
-            // Clear the textarea
-            textarea.value = '';
+        } else {
+            console.log("Message is empty or only whitespace"); // Debug log
         }
     }
 
@@ -189,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const message = snapshot.val();
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
-            messageElement.textContent = message.text;
+            messageElement.innerHTML = message.text.replace(/\n/g, '<br>');  // Replace newlines with <br> tags
             messageElement.id = snapshot.key; // Add ID to track the message
             messageContainer.insertBefore(messageElement, messageContainer.firstChild);
             
@@ -260,15 +270,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add this inside your DOMContentLoaded event listener
     textarea.addEventListener('input', function() {
-        // Set a maximum height for the textarea
-        const maxHeight = 150; // Maximum height in pixels
+        // Enable/disable send button based on content
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = !this.value.trim();
         
-        // Reset height to auto to get the correct scrollHeight
-        this.style.height = 'auto';
+        // Update character counter
+        const charCounter = document.querySelector('.char-counter');
+        const currentLength = this.value.length;
         
-        // Set the height to match the content, but don't exceed maxHeight
-        const newHeight = Math.min(this.scrollHeight, maxHeight);
-        this.style.height = newHeight + 'px';
+        // Only show counter if over 1000 characters
+        if (currentLength > 1000) {
+            charCounter.style.display = 'block';
+            charCounter.textContent = `${currentLength}/1000 characters`;
+            charCounter.style.color = '#ff4444';
+        } else {
+            charCounter.style.display = 'none';
+        }
     });
 });
 

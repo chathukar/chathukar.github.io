@@ -227,14 +227,16 @@ button, input, textarea {
     padding: 12px 16px;
     font-size: 14px;
     resize: none;
-    height: 45px !important;
-    overflow: hidden !important;
+    min-height: 45px;
+    max-height: 300px;
+    overflow-y: auto !important;
     box-sizing: border-box;
     margin-bottom: 10px;
-    min-height: 45px;
     font-family: 'Segoe UI', sans-serif;
     font-weight: bold;
     text-transform: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 #chatInterface #myTextarea::placeholder {
@@ -329,4 +331,14 @@ body.in-chat {
         padding-bottom: max(120px, calc(env(safe-area-inset-bottom) + 120px));
         height: calc(100vh - max(340px, calc(env(safe-area-inset-bottom) + 340px)));
     }
+}
+
+.char-counter {
+    color: #565869;
+    font-size: 12px;
+    text-align: right;
+    margin: -5px 0 10px 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 } 
