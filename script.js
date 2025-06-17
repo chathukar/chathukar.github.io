@@ -199,8 +199,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const message = snapshot.val();
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
-            messageElement.innerHTML = message.text.replace(/\n/g, '<br>');  // Replace newlines with <br> tags
-            messageElement.id = snapshot.key; // Add ID to track the message
+            
+            // Create message content wrapper
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = message.text.replace(/\n/g, '<br>');
+            
+            // Create copy button
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-button';
+            copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>';
+            copyButton.title = 'Copy message';
+            
+            // Add click handler for copy button
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(message.text).then(() => {
+                    // Visual feedback
+                    copyButton.classList.add('copied');
+                    setTimeout(() => {
+                        copyButton.classList.remove('copied');
+                    }, 1000);
+                });
+            });
+            
+            // Add elements to message
+            messageElement.appendChild(messageContent);
+            messageElement.appendChild(copyButton);
+            messageElement.id = snapshot.key;
             messageContainer.insertBefore(messageElement, messageContainer.firstChild);
             
             // Keep scroll position at the top for new messages
