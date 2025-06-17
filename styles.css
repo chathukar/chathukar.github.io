@@ -341,4 +341,7 @@ body.in-chat {
     font-family: 'Segoe UI', sans-serif;
     font-weight: bold;
     text-transform: uppercase;
+    display: none; /* Hide by default */
+    position: relative; /* Ensure proper stacking */
+    z-index: 1; /* Keep above other elements */
 } 
