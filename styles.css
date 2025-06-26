@@ -275,6 +275,13 @@ button, input, textarea {
 }
 
 #chatInterface #myTextarea {
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 300px;
+    flex-shrink: 0;
+    resize: none;
+    box-sizing: border-box;
+    line-height: 1.4;
     width: 100%;
     background-color: var(--input-background);
     border: 1px solid #565869;
@@ -282,20 +289,12 @@ button, input, textarea {
     color: var(--text-color);
     padding: 12px 16px;
     font-size: 14px;
-    resize: none;
-    min-height: 60px;
-    height: 60px;
-    flex-shrink: 0;
-    max-height: 300px;
-    overflow-y: auto !important;
-    box-sizing: border-box;
     margin-bottom: 10px;
     font-family: 'Segoe UI', sans-serif;
     font-weight: bold;
     text-transform: none;
     white-space: pre-wrap;
     word-wrap: break-word;
-    line-height: 1.4;
 }
 
 #chatInterface #myTextarea::placeholder {
