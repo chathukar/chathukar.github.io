@@ -98,7 +98,6 @@ button, input, textarea {
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
-    border: 2px solid red !important; /* DEBUG: show dvh boundary */
     pointer-events: none;
 }
 
@@ -166,7 +165,6 @@ button, input, textarea {
     height: calc(100dvh - 120px);
     min-height: 0;
     justify-content: flex-start;
-    border: 2px solid blue !important; /* DEBUG: show dvh boundary */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -284,7 +282,8 @@ button, input, textarea {
     padding: 12px 16px;
     font-size: 14px;
     resize: none;
-    min-height: 45px;
+    min-height: 60px;
+    flex-shrink: 0;
     max-height: 300px;
     overflow-y: auto !important;
     box-sizing: border-box;
