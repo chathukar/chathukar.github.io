@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Add click and touchend handlers for copy button
             function handleCopy() {
+                // Removed mobile alert dialog
                 // Try Clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(message.text).then(() => {
