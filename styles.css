@@ -13,7 +13,7 @@ body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
 }
 
@@ -29,7 +29,7 @@ button, input, textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 100dvh;
     justify-content: center;
     overflow: hidden;
     gap: 30px;
@@ -87,7 +87,7 @@ button, input, textarea {
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    height: 100vh;
+    height: 100dvh;
     position: fixed;
     top: 0;
     left: 50%;
@@ -98,11 +98,14 @@ button, input, textarea {
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
+    border: 2px solid red !important; /* DEBUG: show dvh boundary */
+    pointer-events: none;
 }
 
 /* Add a class for when chat is visible */
 #chatInterface.visible {
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* Update animations */
@@ -160,9 +163,10 @@ button, input, textarea {
     -ms-overflow-style: none;
     scrollbar-width: none;
     margin-bottom: 0;
-    height: calc(100vh - 120px);
+    height: calc(100dvh - 120px);
     min-height: 0;
     justify-content: flex-start;
+    border: 2px solid blue !important; /* DEBUG: show dvh boundary */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

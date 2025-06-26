@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const timeString = now.toLocaleString('en-US', options);
         const builderVersion = "4";
-        document.getElementById('versionInfo').textContent = `Version: ${timeString} (Builder ${builderVersion})`;
+        const versionInfoElem = document.getElementById('versionInfo');
+        if (versionInfoElem) {
+            versionInfoElem.textContent = `Version: ${timeString} (Builder ${builderVersion})`;
+        }
     }
 
     // Call version update
@@ -256,7 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Hide room selection and show chat interface
         roomSelection.style.display = 'none';
-        chatInterface.style.display = 'block';
+        chatInterface.style.display = 'flex';
+        chatInterface.classList.add('visible');
         
         // Add in-chat class to body
         document.body.classList.add('in-chat');
@@ -267,11 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Start listening to messages
         listenToMessages(roomNumber);
-        
-        // Move the animation trigger to the end
-        setTimeout(() => {
-            chatInterface.classList.add('visible');
-        }, 100); // Increased delay to 100ms
     }
 
     // Also join room when pressing Enter in the room input

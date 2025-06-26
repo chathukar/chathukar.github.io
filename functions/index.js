@@ -76,3 +76,21 @@ exports.handleUserPresence = functions.database
       console.error(`Error handling user presence for room ${roomId}:`, error);
     }
   });
+
+function updateVersionInfo() {
+    const now = new Date();
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short'
+    };
+    const timeString = now.toLocaleString('en-US', options);
+    const builderVersion = "4";
+    const versionInfoElem = document.getElementById('versionInfo');
+    if (versionInfoElem) {
+        versionInfoElem.textContent = `Version: ${timeString} (Builder ${builderVersion})`;
+    }
+}
