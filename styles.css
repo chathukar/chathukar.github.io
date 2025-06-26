@@ -258,6 +258,7 @@ button, input, textarea {
     margin: 0 auto;
     box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
+    min-height: 80px;
 }
 
 @keyframes containerFadeIn {
@@ -283,6 +284,7 @@ button, input, textarea {
     font-size: 14px;
     resize: none;
     min-height: 60px;
+    height: 60px;
     flex-shrink: 0;
     max-height: 300px;
     overflow-y: auto !important;
@@ -293,6 +295,7 @@ button, input, textarea {
     text-transform: none;
     white-space: pre-wrap;
     word-wrap: break-word;
+    line-height: 1.4;
 }
 
 #chatInterface #myTextarea::placeholder {
