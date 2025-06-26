@@ -13,7 +13,7 @@ body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow: hidden;
 }
 
@@ -29,20 +29,29 @@ button, input, textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 100dvh;
     justify-content: center;
     overflow: hidden;
-    gap: 20px;
+    gap: 30px;
     position: fixed;
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 #roomSelection h1 {
     margin: 0;
     padding: 0;
+}
+
+.logo {
+    max-width: 300px;
+    height: auto;
+    margin-bottom: 0;
 }
 
 .room-input {
@@ -51,9 +60,13 @@ button, input, textarea {
     border-radius: 8px;
     color: var(--text-color);
     padding: 12px 16px;
-    font-size: 16px;
+    font-size: 14px;
     width: 200px;
     margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
 }
 
 #roomSelection .button-container,
@@ -63,26 +76,35 @@ button, input, textarea {
 
 #joinRoomButton {
     margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: 200px;
+    padding: 12px 16px;
+    font-size: 14px;
 }
 
 #chatInterface {
-    max-width: 768px;
-    margin: 0 auto;
-    height: 100vh;
     position: fixed;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    padding-bottom: 0;
+    max-width: 768px;
+    margin: 0 auto;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
 }
 
 /* Add a class for when chat is visible */
 #chatInterface.visible {
     opacity: 1;
+    pointer-events: auto;
 }
 
 /* Update animations */
@@ -110,35 +132,39 @@ button, input, textarea {
     font-size: 2em;
     font-weight: bold;
     white-space: nowrap;
-    /* These rules will be moved to .fade-in-animated */
-    /* opacity: 0; */
-    /* animation: fadeIn 1s steps(50) forwards; */
-    /* animation-iteration-count: 1; */
+    font-family: 'Segoe UI', sans-serif;
+    /* text-transform: uppercase; */
 }
 
 #roomInfo .user-count {
     display: block;
     font-size: 16px;
-    font-weight: normal;
+    font-weight: bold;
     text-align: center;
     margin-top: 5px;
     margin-bottom: 20px;
     opacity: 1;
     transition: opacity 1s ease-in-out;
+    font-family: 'Segoe UI', sans-serif;
+    text-transform: uppercase;
 }
 
 #messageContainer {
-    padding: 0px;
+    padding: 0 20px 0 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     width: calc(100% - 40px);
     max-width: 768px;
     margin: 0 auto;
-    flex: 1;  /* Take remaining space */
+    flex: 1;
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    margin-bottom: 0;
+    height: calc(100% - 120px);
+    min-height: 0;
+    justify-content: flex-start;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -154,16 +180,84 @@ button, input, textarea {
     line-height: 1.5;
     width: 100%;
     box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: none;
+    font-size: 14px;
+    min-height: fit-content;
+    height: auto;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    flex-shrink: 0;
+    margin-bottom: 5px;
+    position: relative; /* For copy button positioning */
+}
+
+.message-content {
+    padding-right: 30px; /* Make room for copy button */
+}
+
+.copy-button {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #565869;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    width: auto;
+    height: auto;
+    touch-action: manipulation; /* Improve touch handling */
+}
+
+/* Show copy button on hover for desktop */
+@media (hover: hover) {
+    .message:hover .copy-button {
+        opacity: 1;
+    }
+}
+
+/* Always show copy button on touch devices */
+@media (hover: none) {
+    .copy-button {
+        opacity: 0.5; /* Slightly transparent by default */
+    }
+    
+    .copy-button:active {
+        opacity: 1;
+    }
+}
+
+.copy-button:hover {
+    color: var(--text-color);
+}
+
+.copy-button.copied {
+    color: var(--button-color);
+    opacity: 1 !important; /* Ensure copied state is always visible */
+}
+
+.copy-button svg {
+    display: block;
+}
+
+.message:first-child {
+    margin-top: 0;
 }
 
 .input-container {
-    position: relative;  /* Changed from fixed to relative */
+    position: relative;
     width: calc(100% - 40px);
     max-width: 768px;
     z-index: 1000;
     padding: 20px;
     background-color: var(--background-color);
     margin: 0 auto;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 @keyframes containerFadeIn {
@@ -181,18 +275,25 @@ button, input, textarea {
 
 #chatInterface #myTextarea {
     width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 12px 16px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    margin-bottom: 10px;
     background-color: var(--input-background);
     border: 1px solid #565869;
     border-radius: 8px;
     color: var(--text-color);
-    padding: 12px 16px;
-    font-size: 16px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     resize: none;
-    height: 45px !important;
-    overflow: hidden !important;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-    min-height: 45px;
+}
+
+#chatInterface #myTextarea::placeholder {
+    text-transform: uppercase;
+    font-size: 14px;
 }
 
 /* Make sure these are removed if they exist elsewhere */
@@ -226,6 +327,9 @@ button, input, textarea {
     font-size: 14px;
     transition: background-color 0.2s;
     width: 130px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 button {
@@ -237,7 +341,10 @@ button {
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
-    width: 120px; /* Fixed width for all buttons */
+    width: 120px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 button:hover {
@@ -250,6 +357,9 @@ button:hover {
     right: 10px;
     color: #565869;
     font-size: 12px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 /* When chat interface is shown, allow scrolling again */
@@ -264,13 +374,15 @@ body.in-chat {
     animation-iteration-count: 1;
 }
 
-#roomInfo .user-count {
-    display: block;
-    font-size: 16px;
-    font-weight: normal;
-    text-align: center;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
+.char-counter {
+    color: #565869;
+    font-size: 12px;
+    text-align: right;
+    margin: -5px 0 10px 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: none; /* Hide by default */
+    position: relative; /* Ensure proper stacking */
+    z-index: 1; /* Keep above other elements */
 } 

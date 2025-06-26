@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const timeString = now.toLocaleString('en-US', options);
         const builderVersion = "4";
-        document.getElementById('versionInfo').textContent = `Version: ${timeString} (Builder ${builderVersion})`;
+        const versionInfoElem = document.getElementById('versionInfo');
+        if (versionInfoElem) {
+            versionInfoElem.textContent = `Version: ${timeString} (Builder ${builderVersion})`;
+        }
     }
 
     // Call version update
@@ -95,8 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add these functions if they don't exist
     function sendMessage() {
-        const message = textarea.value.trim();
-        if (message) {
+        const message = textarea.value;  // Get raw value
+        console.log("Attempting to send message:", message); // Debug log
+        console.log("Message length:", message.length); // Debug log
+        console.log("Contains newlines:", message.includes('\n')); // Debug log
+        
+        if (message && message.trim()) {  // Check if there's actual content
+            console.log("Message is valid, sending..."); // Debug log
             // Get a reference to the messages in the current room
             const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
             
@@ -104,20 +112,49 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesRef.push({
                 text: message,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log("Message sent successfully"); // Debug log
+                // Clear the textarea
+                textarea.value = '';
+                // Force a reflow to fix iOS Safari placeholder bug (less flicker)
+                textarea.offsetHeight; // Read a property to force reflow
+                textarea.style.transform = 'scale(1)'; // Write a no-op style
+                setTimeout(() => {
+                    textarea.style.transform = '';
+                }, 10);
+            }).catch(error => {
+                console.error("Error sending message:", error); // Debug log
             });
-
-            // Clear the textarea
-            textarea.value = '';
+        } else {
+            console.log("Message is empty or only whitespace"); // Debug log
         }
     }
 
     function clearHistory() {
+        if (!currentRoom) return;
+        
         // Clear the message container
         messageContainer.innerHTML = '';
         
+        // Reset scroll position to top
+        messageContainer.scrollTop = 0;
+        
         // Clear messages in Firebase for current room
         const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
-        messagesRef.remove();
+        
+        // First, get all messages
+        messagesRef.once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                // Then remove them all
+                messagesRef.remove()
+                    .then(() => {
+                        console.log("Messages cleared from Firebase for all users");
+                    })
+                    .catch((error) => {
+                        console.error("Error clearing messages:", error);
+                    });
+            }
+        });
     }
 
     function leaveRoom() {
@@ -163,12 +200,76 @@ document.addEventListener('DOMContentLoaded', () => {
     function listenToMessages(roomNumber) {
         const messagesRef = firebase.database().ref('rooms/' + roomNumber + '/messages');
         
+        // Remove any existing listeners
+        messagesRef.off();
+        
+        // Listen for child added
         messagesRef.on('child_added', (snapshot) => {
             const message = snapshot.val();
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
-            messageElement.textContent = message.text;
+            
+            // Create message content wrapper
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = message.text.replace(/\n/g, '<br>');
+            
+            // Create copy button
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-button';
+            copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>';
+            copyButton.title = 'Copy message';
+            
+            // Add click and touchend handlers for copy button
+            function handleCopy() {
+                // Removed mobile alert dialog
+                // Try Clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message.text).then(() => {
+                        // Visual feedback
+                        copyButton.classList.add('copied');
+                        setTimeout(() => {
+                            copyButton.classList.remove('copied');
+                        }, 1000);
+                    }).catch(() => {
+                        // Fallback if Clipboard API fails
+                        fallbackCopyTextToClipboard(message.text, copyButton);
+                    });
+                } else {
+                    // Fallback for older browsers/mobile
+                    fallbackCopyTextToClipboard(message.text, copyButton);
+                }
+            }
+            copyButton.addEventListener('click', handleCopy);
+            copyButton.addEventListener('touchend', function(e) {
+                e.preventDefault(); // Prevents simulated mouse event
+                handleCopy();
+            });
+            
+            // Add elements to message
+            messageElement.appendChild(messageContent);
+            messageElement.appendChild(copyButton);
+            messageElement.id = snapshot.key;
             messageContainer.insertBefore(messageElement, messageContainer.firstChild);
+            
+            // Keep scroll position at the top for new messages
+            messageContainer.scrollTop = 0;
+        });
+
+        // Listen for child removed
+        messagesRef.on('child_removed', (snapshot) => {
+            const messageElement = document.getElementById(snapshot.key);
+            if (messageElement) {
+                messageElement.remove();
+            }
+        });
+
+        // Listen for value changes (for when all messages are cleared)
+        messagesRef.on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                messageContainer.innerHTML = '';
+                messageContainer.scrollTop = 0;
+            }
         });
     }
 
@@ -179,7 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Hide room selection and show chat interface
         roomSelection.style.display = 'none';
-        chatInterface.style.display = 'block';
+        chatInterface.style.display = 'flex';
+        chatInterface.classList.add('visible');
         
         // Add in-chat class to body
         document.body.classList.add('in-chat');
@@ -190,11 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Start listening to messages
         listenToMessages(roomNumber);
-        
-        // Move the animation trigger to the end
-        setTimeout(() => {
-            chatInterface.classList.add('visible');
-        }, 100); // Increased delay to 100ms
     }
 
     // Also join room when pressing Enter in the room input
@@ -218,10 +315,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add this inside your DOMContentLoaded event listener
     textarea.addEventListener('input', function() {
-        // Reset height to auto to get the correct scrollHeight
-        this.style.height = 'auto';
-        // Set the height to match the content
-        this.style.height = this.scrollHeight + 'px';
+        // Enable/disable send button based on content
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = !this.value.trim();
+        
+        // Update character counter
+        const charCounter = document.querySelector('.char-counter');
+        const currentLength = this.value.length;
+        
+        // Only show counter if over 1000 characters
+        if (currentLength > 1000) {
+            charCounter.style.display = 'block';
+            charCounter.textContent = `${currentLength}/1000 characters`;
+            charCounter.style.color = '#ff4444';
+        } else {
+            charCounter.style.display = 'none';
+        }
     });
 });
 
@@ -237,7 +346,7 @@ function updateRoomInfo(roomNumber, userCount) {
 
     // Always update both room number and user count with animation
     roomInfo.innerHTML = `
-        <div class="room-number fade-in-animated">Channel ${roomNumber}</div>
+        <div class="room-number fade-in-animated">CHANNEL ${roomNumber}</div>
         <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
     `;
     
@@ -380,3 +489,37 @@ window.addEventListener('beforeunload', function() {
         checkAndClearEmptyRoom(currentRoom);
     }
 });
+
+// Add this helper function outside of DOMContentLoaded
+function fallbackCopyTextToClipboard(text, copyButton) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    // Slightly visible for mobile compatibility
+    textArea.style.position = 'fixed';
+    textArea.style.top = 0;
+    textArea.style.left = 0;
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = 0;
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0.01'; // Make it slightly visible
+    textArea.setAttribute('readonly', '');
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        const successful = document.execCommand('copy');
+        if (successful && copyButton) {
+            copyButton.classList.add('copied');
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+            }, 1000);
+        }
+    } catch (err) {
+        // Optionally show error feedback
+    }
+    document.body.removeChild(textArea);
+}
