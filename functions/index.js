@@ -94,3 +94,15 @@ function updateVersionInfo() {
         versionInfoElem.textContent = `Version: ${timeString} (Builder ${builderVersion})`;
     }
 }
+
+// Force a repaint to fix iOS Safari placeholder bug
+textarea.style.display = 'none';
+setTimeout(() => {
+  textarea.style.display = '';
+}, 10);
+
+textarea.value = '';
+textarea.focus();
+setTimeout(() => {
+  textarea.blur();
+}, 50);

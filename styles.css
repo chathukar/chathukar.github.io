@@ -85,19 +85,19 @@ button, input, textarea {
 }
 
 #chatInterface {
-    max-width: 768px;
-    margin: 0 auto;
-    height: 100%;
     position: fixed;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    height: 100%;
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
+    max-width: 768px;
+    margin: 0 auto;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
     pointer-events: none;
 }
 
@@ -133,7 +133,7 @@ button, input, textarea {
     font-weight: bold;
     white-space: nowrap;
     font-family: 'Segoe UI', sans-serif;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
 }
 
 #roomInfo .user-count {
@@ -258,7 +258,6 @@ button, input, textarea {
     margin: 0 auto;
     box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
-    min-height: 80px;
 }
 
 @keyframes containerFadeIn {
@@ -275,30 +274,26 @@ button, input, textarea {
 }
 
 #chatInterface #myTextarea {
-    height: 64px !important;
-    min-height: 64px !important;
-    max-height: 300px;
-    flex-shrink: 0;
-    resize: none;
-    box-sizing: border-box;
-    line-height: 1.4;
     width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 12px 16px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    margin-bottom: 10px;
     background-color: var(--input-background);
     border: 1px solid #565869;
     border-radius: 8px;
     color: var(--text-color);
-    padding: 12px 16px;
-    font-size: 14px;
-    margin-bottom: 10px;
-    font-family: 'Segoe UI', sans-serif;
-    font-weight: bold;
-    text-transform: none;
     white-space: pre-wrap;
     word-wrap: break-word;
+    resize: none;
 }
 
 #chatInterface #myTextarea::placeholder {
     text-transform: uppercase;
+    font-size: 14px;
 }
 
 /* Make sure these are removed if they exist elsewhere */

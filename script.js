@@ -116,6 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Message sent successfully"); // Debug log
                 // Clear the textarea
                 textarea.value = '';
+                // Force a reflow to fix iOS Safari placeholder bug (less flicker)
+                textarea.offsetHeight; // Read a property to force reflow
+                textarea.style.transform = 'scale(1)'; // Write a no-op style
+                setTimeout(() => {
+                    textarea.style.transform = '';
+                }, 10);
             }).catch(error => {
                 console.error("Error sending message:", error); // Debug log
             });
@@ -214,15 +220,29 @@ document.addEventListener('DOMContentLoaded', () => {
             copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="6" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>';
             copyButton.title = 'Copy message';
             
-            // Add click handler for copy button
-            copyButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(message.text).then(() => {
-                    // Visual feedback
-                    copyButton.classList.add('copied');
-                    setTimeout(() => {
-                        copyButton.classList.remove('copied');
-                    }, 1000);
-                });
+            // Add click and touchend handlers for copy button
+            function handleCopy() {
+                // Try Clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message.text).then(() => {
+                        // Visual feedback
+                        copyButton.classList.add('copied');
+                        setTimeout(() => {
+                            copyButton.classList.remove('copied');
+                        }, 1000);
+                    }).catch(() => {
+                        // Fallback if Clipboard API fails
+                        fallbackCopyTextToClipboard(message.text, copyButton);
+                    });
+                } else {
+                    // Fallback for older browsers/mobile
+                    fallbackCopyTextToClipboard(message.text, copyButton);
+                }
+            }
+            copyButton.addEventListener('click', handleCopy);
+            copyButton.addEventListener('touchend', function(e) {
+                e.preventDefault(); // Prevents simulated mouse event
+                handleCopy();
             });
             
             // Add elements to message
@@ -325,7 +345,7 @@ function updateRoomInfo(roomNumber, userCount) {
 
     // Always update both room number and user count with animation
     roomInfo.innerHTML = `
-        <div class="room-number fade-in-animated">Channel ${roomNumber}</div>
+        <div class="room-number fade-in-animated">CHANNEL ${roomNumber}</div>
         <div class="user-count fade-in-animated">${userCount} user${userCount !== 1 ? 's' : ''} online</div>
     `;
     
@@ -468,3 +488,37 @@ window.addEventListener('beforeunload', function() {
         checkAndClearEmptyRoom(currentRoom);
     }
 });
+
+// Add this helper function outside of DOMContentLoaded
+function fallbackCopyTextToClipboard(text, copyButton) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    // Slightly visible for mobile compatibility
+    textArea.style.position = 'fixed';
+    textArea.style.top = 0;
+    textArea.style.left = 0;
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = 0;
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0.01'; // Make it slightly visible
+    textArea.setAttribute('readonly', '');
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        const successful = document.execCommand('copy');
+        if (successful && copyButton) {
+            copyButton.classList.add('copied');
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+            }, 1000);
+        }
+    } catch (err) {
+        // Optionally show error feedback
+    }
+    document.body.removeChild(textArea);
+}
