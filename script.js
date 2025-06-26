@@ -87,8 +87,75 @@ document.addEventListener('DOMContentLoaded', () => {
     joinRoomButton.addEventListener('click', function() {
         const roomNumber = roomInput.value.trim();
         if (roomNumber) {
-            joinRoom(roomNumber);
+            // Check if room exists before joining
+            const roomRef = firebase.database().ref('rooms/' + roomNumber);
+            roomRef.once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    joinRoom(roomNumber);
+                    // Restore button colors
+                    const createBtn = document.getElementById('createChannelButton');
+                    const joinBtn = document.getElementById('joinRoomButton');
+                    if (createBtn) createBtn.classList.remove('fade-orange');
+                    if (joinBtn) joinBtn.classList.remove('greyed-out');
+                } else {
+                    // Wobble the room input
+                    if (roomInput) {
+                        roomInput.classList.remove('wobble');
+                        void roomInput.offsetWidth;
+                        roomInput.classList.add('wobble');
+                        setTimeout(() => roomInput.classList.remove('wobble'), 500);
+                    }
+                    // Fade create button and grey out join button
+                    const createBtn = document.getElementById('createChannelButton');
+                    const joinBtn = document.getElementById('joinRoomButton');
+                    if (createBtn) createBtn.classList.add('fade-orange');
+                    if (joinBtn) joinBtn.classList.add('greyed-out');
+                }
+            });
         }
+    });
+
+    // Also join room when pressing Enter in the room input
+    roomInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            console.log("Enter pressed in room input");
+            const roomNumber = roomInput.value.trim();
+            if (roomNumber) {
+                // Check if room exists before joining
+                const roomRef = firebase.database().ref('rooms/' + roomNumber);
+                roomRef.once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        joinRoom(roomNumber);
+                        // Restore button colors
+                        const createBtn = document.getElementById('createChannelButton');
+                        const joinBtn = document.getElementById('joinRoomButton');
+                        if (createBtn) createBtn.classList.remove('fade-orange');
+                        if (joinBtn) joinBtn.classList.remove('greyed-out');
+                    } else {
+                        // Wobble the room input
+                        if (roomInput) {
+                            roomInput.classList.remove('wobble');
+                            void roomInput.offsetWidth;
+                            roomInput.classList.add('wobble');
+                            setTimeout(() => roomInput.classList.remove('wobble'), 500);
+                        }
+                        // Fade create button and grey out join button
+                        const createBtn = document.getElementById('createChannelButton');
+                        const joinBtn = document.getElementById('joinRoomButton');
+                        if (createBtn) createBtn.classList.add('fade-orange');
+                        if (joinBtn) joinBtn.classList.add('greyed-out');
+                    }
+                });
+            }
+        }
+    });
+
+    // Restore button colors on input change
+    roomInput.addEventListener('input', function() {
+        const createBtn = document.getElementById('createChannelButton');
+        const joinBtn = document.getElementById('joinRoomButton');
+        if (createBtn) createBtn.classList.remove('fade-orange');
+        if (joinBtn) joinBtn.classList.remove('greyed-out');
     });
 
     // Add event listeners for all buttons
@@ -293,25 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start listening to messages
         listenToMessages(roomNumber);
     }
-
-    // Also join room when pressing Enter in the room input
-    roomInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            console.log("Enter pressed in room input");
-            const roomNumber = roomInput.value.trim();
-            if (roomNumber) {
-                joinRoom(roomNumber);
-            }
-        }
-    });
-
-    // Optional: Add enter key support for sending messages
-    textarea.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
 
     // Add this inside your DOMContentLoaded event listener
     textarea.addEventListener('input', function() {
