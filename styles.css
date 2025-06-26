@@ -87,7 +87,7 @@ button, input, textarea {
 #chatInterface {
     max-width: 768px;
     margin: 0 auto;
-    height: 100dvh;
+    height: 100%;
     position: fixed;
     top: 0;
     left: 50%;
@@ -162,7 +162,7 @@ button, input, textarea {
     -ms-overflow-style: none;
     scrollbar-width: none;
     margin-bottom: 0;
-    height: calc(100dvh - 120px);
+    height: calc(100% - 120px);
     min-height: 0;
     justify-content: flex-start;
 }
