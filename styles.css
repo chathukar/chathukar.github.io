@@ -97,6 +97,7 @@ button, input, textarea {
     transition: opacity 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
+    padding-bottom: 0;
 }
 
 /* Add a class for when chat is visible */
@@ -147,7 +148,7 @@ button, input, textarea {
 }
 
 #messageContainer {
-    padding: 0 20px 120px 20px;
+    padding: 0 20px 0 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -158,8 +159,8 @@ button, input, textarea {
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    margin-bottom: 20px;
-    height: calc(100vh - 340px);
+    margin-bottom: 0;
+    height: calc(100vh - 120px);
     min-height: 0;
     justify-content: flex-start;
 }
@@ -371,18 +372,6 @@ body.in-chat {
     opacity: 0; /* Start invisible */
     animation: fadeIn 1s steps(50) forwards; /* Apply the fadeIn animation */
     animation-iteration-count: 1;
-}
-
-/* Add safe area insets for modern mobile browsers */
-@supports (padding: max(0px)) {
-    .input-container {
-        padding-bottom: max(20px, env(safe-area-inset-bottom));
-    }
-    
-    #messageContainer {
-        padding-bottom: max(120px, calc(env(safe-area-inset-bottom) + 120px));
-        height: calc(100vh - max(340px, calc(env(safe-area-inset-bottom) + 340px)));
-    }
 }
 
 .char-counter {
