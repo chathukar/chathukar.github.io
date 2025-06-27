@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 // Constants
-const INACTIVITY_TIME_ALLOWED = 5000; // 30 seconds in milliseconds, user can open up another program before it kicks you out of the room.
+const INACTIVITY_TIME_ALLOWED = 5000; // 5 seconds in milliseconds, user can open up another program before it kicks you out of the room.
 const ROOM_DELETION_TIME = 10000; // The room deletes after all users leave a room with a delay of this amount.
 
 //Chathu
@@ -23,19 +23,29 @@ console.log("Firebase initialized");
 // Add this at the top of your file after Firebase initialization
 let lastActiveTime = Date.now();
 
+// Add at the top of the file, after global variables
+let inactivityHandler = null;
+
 // Handle page visibility changes
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-        // Page became visible
-        const timeAway = Date.now() - lastActiveTime;
-        // If the page was hidden for more than allowed time, refresh
-        if (timeAway > INACTIVITY_TIME_ALLOWED) {
-            console.log("Page was hidden for too long, refreshing...");
-            window.location.reload();
-        }
+    if (document.hidden) {
+        console.log("Page hidden");
+        setTimeout(() => {
+            if (document.hidden && window.currentRoom && currentUserRef) {
+                console.log("User inactive for too long, kicking from room");
+                // Actually kick the user out of the room, not just remove from user list
+                leaveRoom();
+            }
+        }, INACTIVITY_TIME_ALLOWED);
     } else {
-        // Page is being hidden
-        lastActiveTime = Date.now();
+        console.log("Page visible");
+        // Don't automatically rejoin room - let the user stay where they are
+        // Only re-establish presence if we're still in a room
+        if (window.currentRoom && currentUserRef) {
+            console.log("Re-establishing presence in current room:", window.currentRoom);
+            // Just ensure the user reference is still valid
+            currentUserRef.set(true);
+        }
     }
 });
 
@@ -261,6 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Left room successfully");
         }
         currentRoomNumber = null;  // Reset room number when leaving
+
+        // In leaveRoom, before resetting window.currentRoom, add:
+        if (inactivityHandler) {
+            document.removeEventListener('visibilitychange', inactivityHandler);
+            inactivityHandler = null;
+        }
     }
 
     // Listen for messages in the current room
@@ -360,6 +376,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Start listening to messages
         listenToMessages(roomNumber);
+
+        // In joinRoom, after setting up presence and listeners, add:
+        if (inactivityHandler) {
+            document.removeEventListener('visibilitychange', inactivityHandler);
+        }
+        inactivityHandler = function() {
+            if (document.hidden) {
+                console.log("Page hidden");
+                setTimeout(() => {
+                    if (document.hidden && window.currentRoom && currentUserRef) {
+                        console.log("User inactive for too long, kicking from room");
+                        leaveRoom();
+                    }
+                }, INACTIVITY_TIME_ALLOWED);
+            }
+        };
+        document.addEventListener('visibilitychange', inactivityHandler);
     }
 
     // Add this inside your DOMContentLoaded event listener
@@ -517,7 +550,9 @@ function setupPresenceHandling(userRef, roomNumber) {
             console.log("Page hidden");
             setTimeout(() => {
                 if (document.hidden && window.currentRoom && currentUserRef) {
-                    currentUserRef.remove();
+                    console.log("User inactive for too long, kicking from room");
+                    // Actually kick the user out of the room, not just remove from user list
+                    leaveRoom();
                 }
             }, INACTIVITY_TIME_ALLOWED);
         } else {
