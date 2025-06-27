@@ -443,16 +443,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else {
                             // Room doesn't exist, we can use this number
                             console.log('Creating new channel:', roomNumberString, 'based on', numRooms, 'existing rooms');
-                            joinRoom(roomNumberString);
-                            if (roomInput) roomInput.value = roomNumberString;
-                            createChannelButton.classList.remove('fade-orange');
-                            joinRoomButton.classList.remove('greyed-out');
+                            // Set createdAt timestamp for the new room
+                            firebase.database().ref(`rooms/${roomNumberString}/createdAt`).set(firebase.database.ServerValue.TIMESTAMP)
+                                .then(() => {
+                                    joinRoom(roomNumberString);
+                                    if (roomInput) roomInput.value = roomNumberString;
+                                    createChannelButton.classList.remove('fade-orange');
+                                    joinRoomButton.classList.remove('greyed-out');
+                                });
                         }
                     }).catch(error => {
                         console.error('Error checking room existence:', error);
                         // If we can't check, just use the generated number
-                        joinRoom(roomNumberString);
-                        if (roomInput) roomInput.value = roomNumberString;
+                        // Set createdAt timestamp for the new room
+                        firebase.database().ref(`rooms/${roomNumberString}/createdAt`).set(firebase.database.ServerValue.TIMESTAMP)
+                            .then(() => {
+                                joinRoom(roomNumberString);
+                                if (roomInput) roomInput.value = roomNumberString;
+                            });
                     });
                 };
                 
@@ -464,8 +472,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fallback: generate a random 5-digit number
                 const newChannelNumber = Math.floor(Math.random() * 90000) + 10000;
                 const roomNumberString = newChannelNumber.toString();
-                joinRoom(roomNumberString);
-                if (roomInput) roomInput.value = roomNumberString;
+                // Set createdAt timestamp for the new room
+                firebase.database().ref(`rooms/${roomNumberString}/createdAt`).set(firebase.database.ServerValue.TIMESTAMP)
+                    .then(() => {
+                        joinRoom(roomNumberString);
+                        if (roomInput) roomInput.value = roomNumberString;
+                    });
             });
         });
     }

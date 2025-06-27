@@ -31,7 +31,7 @@ exports.cleanupEmptyRooms = functions.database
         const roomRef = admin.database().ref(`/rooms/${roomId}`);
         const roomSnapshot = await roomRef.child('users').once('value');
         if (!roomSnapshot.val() || Object.keys(roomSnapshot.val()).length === 0) {
-          await roomRef.child('messages').remove();
+          await roomRef.remove();
           console.log(`Cleaned up empty room: ${roomId}`);
         }
       } catch (error) {
@@ -52,7 +52,7 @@ exports.handleUserPresence = functions.database
         await new Promise(resolve => setTimeout(resolve, 10000));
         const finalSnapshot = await roomRef.child('users').once('value');
         if (!finalSnapshot.val() || Object.keys(finalSnapshot.val()).length === 0) {
-          await roomRef.child('messages').remove();
+          await roomRef.remove();
           console.log(`Cleaned up room after last user left: ${roomId}`);
         }
       }
@@ -65,8 +65,11 @@ exports.handleUserPresence = functions.database
 exports.incrementRoomCount = functions.database
   .ref('/rooms/{roomId}')
   .onCreate(async (snapshot, context) => {
-    const countRef = admin.database().ref('/roomCount');
-    await countRef.transaction(current => (current || 0) + 1);
+    const room = snapshot.val();
+    if (room && room.createdAt) {
+      const countRef = admin.database().ref('/roomCount');
+      await countRef.transaction(current => (current || 0) + 1);
+    }
   });
 
 // Decrement roomCount when a room is deleted
@@ -75,4 +78,17 @@ exports.decrementRoomCount = functions.database
   .onDelete(async (snapshot, context) => {
     const countRef = admin.database().ref('/roomCount');
     await countRef.transaction(current => (current || 1) - 1);
+  });
+
+// Delete any room that does not have a createdAt node
+exports.deleteRoomsWithoutCreatedAt = functions.database
+  .ref('/rooms/{roomId}')
+  .onWrite(async (change, context) => {
+    const roomId = context.params.roomId;
+    const roomData = change.after.exists() ? change.after.val() : null;
+    if (roomData && !roomData.createdAt) {
+      const roomRef = admin.database().ref(`/rooms/${roomId}`);
+      await roomRef.remove();
+      console.log(`Deleted room ${roomId} because it did not have a createdAt node.`);
+    }
   });
