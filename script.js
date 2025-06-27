@@ -390,15 +390,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 const numRooms = snapshot.val() || 0;
                 const max = (numRooms + 1) * 10;
                 
-                // Generate a random room number in the range 1 to max
-                const newChannelNumber = Math.floor(Math.random() * max) + 1;
-                const roomNumberString = newChannelNumber.toString();
+                // Function to generate and check for unique room number
+                const generateUniqueRoomNumber = (attempts = 0) => {
+                    if (attempts > 100) {
+                        alert('Could not find a free room number, please try again.');
+                        return;
+                    }
+                    
+                    const newChannelNumber = Math.floor(Math.random() * max) + 1;
+                    const roomNumberString = newChannelNumber.toString();
+                    
+                    // Check if this room number already exists
+                    firebase.database().ref(`rooms/${roomNumberString}`).once('value').then(roomSnapshot => {
+                        if (roomSnapshot.exists()) {
+                            // Room exists, try again
+                            console.log('Room', roomNumberString, 'already exists, trying again...');
+                            generateUniqueRoomNumber(attempts + 1);
+                        } else {
+                            // Room doesn't exist, we can use this number
+                            console.log('Creating new channel:', roomNumberString, 'based on', numRooms, 'existing rooms');
+                            joinRoom(roomNumberString);
+                            if (roomInput) roomInput.value = roomNumberString;
+                            createChannelButton.classList.remove('fade-orange');
+                            joinRoomButton.classList.remove('greyed-out');
+                        }
+                    }).catch(error => {
+                        console.error('Error checking room existence:', error);
+                        // If we can't check, just use the generated number
+                        joinRoom(roomNumberString);
+                        if (roomInput) roomInput.value = roomNumberString;
+                    });
+                };
                 
-                console.log('Creating new channel:', roomNumberString, 'based on', numRooms, 'existing rooms');
-                joinRoom(roomNumberString);
-                if (roomInput) roomInput.value = roomNumberString;
-                createChannelButton.classList.remove('fade-orange');
-                joinRoomButton.classList.remove('greyed-out');
+                // Start generating unique room numbers
+                generateUniqueRoomNumber();
+                
             }).catch(error => {
                 console.error('Error getting room count:', error);
                 // Fallback: generate a random 5-digit number
