@@ -25,6 +25,9 @@
           }
         }
       }
+    },
+    "roomCount": {
+      ".read": true
     }
   }
 }

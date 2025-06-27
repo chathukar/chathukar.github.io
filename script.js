@@ -380,6 +380,43 @@ document.addEventListener('DOMContentLoaded', () => {
             charCounter.style.display = 'none';
         }
     });
+
+    // Create Channel button logic
+    const createChannelButton = document.getElementById('createChannelButton');
+    if (createChannelButton) {
+        createChannelButton.addEventListener('click', function() {
+            // Get the current room count to determine the range
+            firebase.database().ref('roomCount').once('value').then(snapshot => {
+                const numRooms = snapshot.val() || 0;
+                const max = (numRooms + 1) * 10;
+                
+                // Generate a random room number in the range 1 to max
+                const newChannelNumber = Math.floor(Math.random() * max) + 1;
+                const roomNumberString = newChannelNumber.toString();
+                
+                console.log('Creating new channel:', roomNumberString, 'based on', numRooms, 'existing rooms');
+                joinRoom(roomNumberString);
+                if (roomInput) roomInput.value = roomNumberString;
+                createChannelButton.classList.remove('fade-orange');
+                joinRoomButton.classList.remove('greyed-out');
+            }).catch(error => {
+                console.error('Error getting room count:', error);
+                // Fallback: generate a random 5-digit number
+                const newChannelNumber = Math.floor(Math.random() * 90000) + 10000;
+                const roomNumberString = newChannelNumber.toString();
+                joinRoom(roomNumberString);
+                if (roomInput) roomInput.value = roomNumberString;
+            });
+        });
+    }
+
+    // Optional: Add enter key support for sending messages
+    textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
 });
 
 // Function to update room info - MOVED OUTSIDE DOMContentLoaded

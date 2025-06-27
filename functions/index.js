@@ -7,8 +7,6 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
@@ -27,19 +25,12 @@ exports.cleanupEmptyRooms = functions.database
   .onWrite(async (change, context) => {
     const roomId = context.params.roomId;
     const users = change.after.val();
-    
-    // If no users are present
     if (!users || Object.keys(users).length === 0) {
       try {
-        // Wait for 10 seconds before cleaning up
         await new Promise(resolve => setTimeout(resolve, 10000));
-        
-        // Check again if the room is still empty
         const roomRef = admin.database().ref(`/rooms/${roomId}`);
         const roomSnapshot = await roomRef.child('users').once('value');
-        
         if (!roomSnapshot.val() || Object.keys(roomSnapshot.val()).length === 0) {
-          // Delete the room's messages
           await roomRef.child('messages').remove();
           console.log(`Cleaned up empty room: ${roomId}`);
         }
@@ -54,18 +45,11 @@ exports.handleUserPresence = functions.database
   .ref('/rooms/{roomId}/users/{userId}')
   .onDelete(async (snapshot, context) => {
     const roomId = context.params.roomId;
-    const userId = context.params.userId;
-    
     try {
       const roomRef = admin.database().ref(`/rooms/${roomId}`);
       const usersSnapshot = await roomRef.child('users').once('value');
-      
-      // If this was the last user
       if (!usersSnapshot.val() || Object.keys(usersSnapshot.val()).length === 0) {
-        // Wait for 10 seconds before cleaning up
         await new Promise(resolve => setTimeout(resolve, 10000));
-        
-        // Check again if the room is still empty
         const finalSnapshot = await roomRef.child('users').once('value');
         if (!finalSnapshot.val() || Object.keys(finalSnapshot.val()).length === 0) {
           await roomRef.child('messages').remove();
@@ -77,32 +61,18 @@ exports.handleUserPresence = functions.database
     }
   });
 
-function updateVersionInfo() {
-    const now = new Date();
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZoneName: 'short'
-    };
-    const timeString = now.toLocaleString('en-US', options);
-    const builderVersion = "4";
-    const versionInfoElem = document.getElementById('versionInfo');
-    if (versionInfoElem) {
-        versionInfoElem.textContent = `Version: ${timeString} (Builder ${builderVersion})`;
-    }
-}
+// Increment roomCount when a room is created
+exports.incrementRoomCount = functions.database
+  .ref('/rooms/{roomId}')
+  .onCreate(async (snapshot, context) => {
+    const countRef = admin.database().ref('/roomCount');
+    await countRef.transaction(current => (current || 0) + 1);
+  });
 
-// Force a repaint to fix iOS Safari placeholder bug
-textarea.style.display = 'none';
-setTimeout(() => {
-  textarea.style.display = '';
-}, 10);
-
-textarea.value = '';
-textarea.focus();
-setTimeout(() => {
-  textarea.blur();
-}, 50);
+// Decrement roomCount when a room is deleted
+exports.decrementRoomCount = functions.database
+  .ref('/rooms/{roomId}')
+  .onDelete(async (snapshot, context) => {
+    const countRef = admin.database().ref('/roomCount');
+    await countRef.transaction(current => (current || 1) - 1);
+  });
