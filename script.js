@@ -225,9 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function leaveRoom() {
-        if (currentRoom) {
+        if (window.currentRoom) {
             // Remove message listeners for the current room
-            const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+            const messagesRef = firebase.database().ref('rooms/' + window.currentRoom + '/messages');
             messagesRef.off(); // Remove all listeners
             
             // Remove presence
@@ -236,11 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentUserRef = null;
                 
                 // Add this line to check and clear room after user leaves
-                checkAndClearEmptyRoom(currentRoom);
+                checkAndClearEmptyRoom(window.currentRoom);
             }
             
             // Reset the room
-            currentRoom = null;
+            window.currentRoom = null;
             
             // Hide chat interface
             chatInterface.style.display = 'none';
@@ -343,7 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add this to your joinRoom function
     function joinRoom(roomNumber) {
         console.log("Joining room:", roomNumber);
-        currentRoom = roomNumber;
+        // Use the global currentRoom variable, not a local one
+        window.currentRoom = roomNumber;
         
         // Hide room selection and show chat interface
         roomSelection.style.display = 'none';
@@ -515,7 +516,7 @@ function setupPresenceHandling(userRef, roomNumber) {
         if (document.hidden) {
             console.log("Page hidden");
             setTimeout(() => {
-                if (document.hidden && currentRoom && currentUserRef) {
+                if (document.hidden && window.currentRoom && currentUserRef) {
                     currentUserRef.remove();
                 }
             }, INACTIVITY_TIME_ALLOWED);
@@ -523,8 +524,8 @@ function setupPresenceHandling(userRef, roomNumber) {
             console.log("Page visible");
             // Don't automatically rejoin room - let the user stay where they are
             // Only re-establish presence if we're still in a room
-            if (currentRoom && currentUserRef) {
-                console.log("Re-establishing presence in current room:", currentRoom);
+            if (window.currentRoom && currentUserRef) {
+                console.log("Re-establishing presence in current room:", window.currentRoom);
                 // Just ensure the user reference is still valid
                 currentUserRef.set(true);
             }
@@ -596,11 +597,11 @@ function checkAndClearEmptyRoom(roomNumber) {
 
 // Add this function to handle tab/window closing
 window.addEventListener('beforeunload', function() {
-    if (currentRoom && currentUserRef) {
+    if (window.currentRoom && currentUserRef) {
         // Remove the user reference
         currentUserRef.remove();
         // Trigger the room cleanup
-        checkAndClearEmptyRoom(currentRoom);
+        checkAndClearEmptyRoom(window.currentRoom);
     }
 });
 
