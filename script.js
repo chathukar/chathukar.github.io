@@ -499,10 +499,10 @@ function setupPresenceHandling(userRef, roomNumber) {
                         roomRef.child('users').once('value', (finalSnapshot) => {
                             const finalCount = finalSnapshot.exists() ? Object.keys(finalSnapshot.val()).length : 0;
                             if (finalCount < 1) {
-                                console.log("Room still empty after delay, clearing messages");
-                                roomRef.child('messages').remove()
-                                    .then(() => console.log("Messages cleared"))
-                                    .catch(error => console.error("Error clearing messages:", error));
+                                console.log("Room still empty after delay, clearing room");
+                                roomRef.remove()
+                                    .then(() => console.log("Room deleted"))
+                                    .catch(error => console.error("Error deleting room:", error));
                             }
                         });
                     }, ROOM_DELETION_TIME);
@@ -576,14 +576,10 @@ function checkAndClearEmptyRoom(roomNumber) {
                             console.log("User count after delay:", newUserCount);
                             
                             if (newUserCount < 1) {
-                                console.log("Room still empty after delay, clearing messages");
-                                return roomRef.child('messages').remove()
-                                    .then(() => {
-                                        console.log("Messages cleared from empty room");
-                                    })
-                                    .catch(error => {
-                                        console.error("Error clearing messages:", error);
-                                    });
+                                console.log("Room still empty after delay, clearing room");
+                                roomRef.remove()
+                                    .then(() => console.log("Room deleted"))
+                                    .catch(error => console.error("Error deleting room:", error));
                             } else {
                                 console.log("Users rejoined, keeping room active");
                             }
