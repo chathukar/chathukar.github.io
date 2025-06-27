@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message && message.trim()) {  // Check if there's actual content
             console.log("Message is valid, sending..."); // Debug log
             // Get a reference to the messages in the current room
-            const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+            const messagesRef = firebase.database().ref('rooms/' + window.currentRoom + '/messages');
             
             // Push the new message to Firebase
             messagesRef.push({
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clearHistory() {
-        if (!currentRoom) return;
+        if (!window.currentRoom) return;
         
         // Clear the message container
         messageContainer.innerHTML = '';
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContainer.scrollTop = 0;
         
         // Clear messages in Firebase for current room
-        const messagesRef = firebase.database().ref('rooms/' + currentRoom + '/messages');
+        const messagesRef = firebase.database().ref('rooms/' + window.currentRoom + '/messages');
         
         // First, get all messages
         messagesRef.once('value', (snapshot) => {
