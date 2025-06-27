@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Get the current room count to determine the range
             firebase.database().ref('roomCount').once('value').then(snapshot => {
                 const numRooms = snapshot.val() || 0;
-                const max = (numRooms + 1) * 10;
+                const max = (numRooms + 1) * 3;
                 
                 // Function to generate and check for unique room number
                 const generateUniqueRoomNumber = (attempts = 0) => {
@@ -521,9 +521,12 @@ function setupPresenceHandling(userRef, roomNumber) {
             }, INACTIVITY_TIME_ALLOWED);
         } else {
             console.log("Page visible");
-            if (currentRoom) {
-                console.log("Rejoining room after visibility change");
-                joinRoom(currentRoom);
+            // Don't automatically rejoin room - let the user stay where they are
+            // Only re-establish presence if we're still in a room
+            if (currentRoom && currentUserRef) {
+                console.log("Re-establishing presence in current room:", currentRoom);
+                // Just ensure the user reference is still valid
+                currentUserRef.set(true);
             }
         }
     });
